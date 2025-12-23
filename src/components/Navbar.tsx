@@ -2,9 +2,10 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Sparkles, Search } from 'lucide-react';
+import { Sparkles, Search, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { useWishlist } from '@/context/WishlistContext';
 
 export default function Navbar({ locale }: { locale: string }) {
     const t = useTranslations('Index');
@@ -12,6 +13,7 @@ export default function Navbar({ locale }: { locale: string }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+    const { wishlist } = useWishlist();
 
     const handleSearch = useDebouncedCallback((term: string) => {
         const params = new URLSearchParams(searchParams);
@@ -62,6 +64,14 @@ export default function Navbar({ locale }: { locale: string }) {
             </div>
 
             <div className="flex items-center gap-4">
+                <Link href={`/${locale}/wishlist`} className="relative text-sm font-medium text-gray-300 hover:text-white transition-colors group">
+                    <Heart className="w-6 h-6 group-hover:fill-white/20" />
+                    {wishlist.length > 0 && (
+                        <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-primary rounded-full">
+                            {wishlist.length}
+                        </span>
+                    )}
+                </Link>
                 <Link href={`/${locale}/about`} className="text-sm font-medium text-gray-300 hover:text-white transition-colors hidden md:block">
                     {locale === 'en' ? 'How it Works' : 'كيف يعمل'}
                 </Link>

@@ -3,6 +3,8 @@ import { getMessages, getTranslations } from 'next-intl/server';
 import '../globals.css';
 import { Inter, Noto_Kufi_Arabic } from 'next/font/google';
 import Footer from '@/components/Footer';
+import { WishlistProvider } from '@/context/WishlistContext';
+import Chatbot from '@/components/Chatbot';
 
 const inter = Inter({ subsets: ['latin'] });
 const arabic = Noto_Kufi_Arabic({ subsets: ['arabic'] });
@@ -40,8 +42,11 @@ export default async function LocaleLayout({
         <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
             <body className={locale === 'ar' ? arabic.className : inter.className}>
                 <NextIntlClientProvider messages={messages}>
-                    {children}
-                    <Footer />
+                    <WishlistProvider>
+                        {children}
+                        <Footer />
+                        <Chatbot />
+                    </WishlistProvider>
                 </NextIntlClientProvider>
             </body>
         </html>

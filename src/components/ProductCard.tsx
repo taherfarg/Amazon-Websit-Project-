@@ -1,7 +1,8 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { Star, ExternalLink, Cpu } from 'lucide-react';
+import { Star, ExternalLink, Cpu, Heart } from 'lucide-react';
 import Image from 'next/image';
+import { useWishlist } from '@/context/WishlistContext';
 
 import Link from 'next/link';
 
@@ -20,8 +21,21 @@ interface Product {
 
 export default function ProductCard({ product, locale }: { product: Product, locale: string }) {
     const t = useTranslations('Index');
+    const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
     const title = locale === 'en' ? product.title_en : product.title_ar;
     const description = locale === 'en' ? product.description_en : product.description_ar;
+
+    const isWishlisted = isInWishlist(product.id);
+
+    const toggleWishlist = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isWishlisted) {
+            removeFromWishlist(product.id);
+        } else {
+            addToWishlist(product);
+        }
+    };
 
     return (
         <div className="group relative bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10">
@@ -30,6 +44,14 @@ export default function ProductCard({ product, locale }: { product: Product, loc
                 <Cpu className="w-3.5 h-3.5 text-secondary" />
                 <span className="text-xs font-bold text-white tracking-wide">{t('ai_verdict')}</span>
             </div>
+
+            {/* Wishlist Button */}
+            <button
+                onClick={toggleWishlist}
+                className="absolute top-3 right-3 z-20 p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/20 transition-colors"
+            >
+                <Heart className={`w-5 h-5 transition-colors ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+            </button>
 
             <div className="relative w-full h-64 bg-white/5 p-4 flex items-center justify-center overflow-hidden">
                 {/* Placeholder image handling because we might not have next.config domain set up yet for external images */}
