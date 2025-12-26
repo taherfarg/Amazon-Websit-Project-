@@ -157,7 +157,9 @@ def generate_ai_content(product_data):
 def main():
     # Example URLs - User should populate this list
     product_urls = [
-         "https://amzn.to/3MRtocV",
+         "https://amzn.to/3Lkx06K",
+         "https://amzn.to/44NYEQi",
+         "https://amzn.to/4qvhoMU",
     ]
     
     if not product_urls:
