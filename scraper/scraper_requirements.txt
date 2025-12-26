@@ -1,0 +1,7 @@
+requests
+curl_cffi
+beautifulsoup4
+supabase
+openai
+google-generativeai
+python-dotenv
