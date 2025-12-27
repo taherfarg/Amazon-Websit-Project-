@@ -1,10 +1,9 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { Star, ExternalLink, Cpu, Heart } from 'lucide-react';
-import Image from 'next/image';
+import { Star, ExternalLink, Cpu, Heart, Sparkles, Check } from 'lucide-react';
 import { useWishlist } from '@/context/WishlistContext';
-
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 interface Product {
     id: number;
@@ -38,67 +37,96 @@ export default function ProductCard({ product, locale }: { product: Product, loc
     };
 
     return (
-        <div className="group relative bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10">
-            {/* AI Badge */}
-            <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-black/70 backdrop-blur-md rounded-full border border-white/10 shadow-lg">
-                <Cpu className="w-3.5 h-3.5 text-secondary" />
-                <span className="text-xs font-bold text-white tracking-wide">{t('ai_verdict')}</span>
+        <motion.div
+            whileHover={{ y: -8 }}
+            className="group relative h-full flex flex-col bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] hover:border-blue-500/30"
+        >
+            {/* Shimmer Effect */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+            {/* Top Badges */}
+            <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                {/* AI Pick Badge */}
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/20 backdrop-blur-md rounded-full border border-blue-400/20 shadow-lg glow-blue">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
+                    <span className="text-[10px] font-bold text-blue-100 tracking-wider uppercase">AI Pick</span>
+                </div>
+                {/* Category Badge */}
+                <span className="self-start px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[10px] font-semibold text-gray-300 uppercase tracking-widest shadow-sm">
+                    {product.category || 'General'}
+                </span>
             </div>
 
             {/* Wishlist Button */}
             <button
                 onClick={toggleWishlist}
-                className="absolute top-3 right-3 z-20 p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/20 transition-colors"
+                className="absolute top-4 right-4 z-20 p-2.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all active:scale-95 group/btn"
             >
-                <Heart className={`w-5 h-5 transition-colors ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                <Heart className={`w-4 h-4 transition-all duration-300 ${isWishlisted ? 'fill-red-500 text-red-500 scale-110' : 'text-gray-300 group-hover/btn:scale-110'}`} />
             </button>
 
-            <div className="relative w-full h-64 bg-white/5 p-4 flex items-center justify-center overflow-hidden">
-                {/* Placeholder image handling because we might not have next.config domain set up yet for external images */}
-                <Link href={`/${locale}/product/${product.id}`} className="w-full h-full flex items-center justify-center">
+            {/* Image Area */}
+            <div className="relative w-full aspect-[4/3] bg-gradient-to-b from-white/5 to-transparent p-8 flex items-center justify-center overflow-hidden">
+                <Link href={`/${locale}/product/${product.id}`} className="w-full h-full flex items-center justify-center relative z-10">
                     {product.image_url ? (
-                        <img
+                        <motion.img
                             src={product.image_url}
                             alt={title}
-                            className="object-contain w-full h-full transition-transform duration-500 group-hover:scale-110"
+                            className="object-contain w-full h-full drop-shadow-2xl brightness-90 contrast-125 group-hover:brightness-100 group-hover:scale-110 transition-all duration-500 ease-out"
                         />
                     ) : (
-                        <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500">No Image</div>
+                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-600 gap-3">
+                            <Cpu className="w-10 h-10 opacity-30" />
+                            <span className="text-xs font-medium tracking-wide">No Image</span>
+                        </div>
                     )}
                 </Link>
             </div>
 
-            <div className="p-6 space-y-4">
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium px-2 py-0.5 rounded bg-white/10 text-gray-300 uppercase tracking-wider">
-                            {product.category}
-                        </span>
-                        <div className="flex items-center gap-1 text-yellow-400">
-                            <Star className="w-4 h-4 fill-yellow-400" />
-                            <span className="text-sm font-bold">{product.rating}</span>
-                        </div>
+            {/* Content Area */}
+            <div className="p-6 flex flex-col flex-grow relative bg-gradient-to-b from-transparent to-black/20">
+                {/* Rating */}
+                <div className="mb-3 flex items-center gap-2">
+                    <div className="flex items-center gap-1 text-amber-400">
+                        <Star className="w-3.5 h-3.5 fill-amber-400" />
+                        <span className="text-sm font-bold">{product.rating}</span>
                     </div>
-                    <Link href={`/${locale}/product/${product.id}`}>
-                        <h3 className="text-lg font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2 cursor-pointer">
-                            {title}
-                        </h3>
-                    </Link>
+                    <span className="text-xs text-gray-600">•</span>
+                    <span className="text-xs text-gray-500 font-medium">Excellent</span>
                 </div>
 
-                <p className="text-sm text-gray-400 line-clamp-3">
-                    {description}
+                <Link href={`/${locale}/product/${product.id}`} className="block mb-3 group-hover:translate-x-1 transition-transform duration-300">
+                    <h3 className="text-lg font-bold leading-tight text-white group-hover:text-blue-400 transition-colors line-clamp-2" title={title}>
+                        {title}
+                    </h3>
+                </Link>
+
+                <p className="text-sm text-gray-400 line-clamp-2 leading-relaxed mb-6 font-light">
+                    {description || 'No description available'}
                 </p>
 
-                <a
-                    href={product.affiliate_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors mt-auto"
-                >
-                    {t('buy_now')} <ExternalLink className="w-4 h-4" />
-                </a>
+                <div className="mt-auto pt-5 border-t border-white/5 grid grid-cols-[1fr_auto] gap-3 items-center">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">Best Price</span>
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-sm text-gray-400">$</span>
+                            <span className="text-xl font-bold text-white">Check</span>
+                        </div>
+                    </div>
+
+                    <a
+                        href={product.affiliate_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative overflow-hidden flex items-center justify-center gap-2 px-6 py-2.5 bg-white text-black font-bold text-sm rounded-xl hover:bg-blue-50 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] hover:-translate-y-0.5 active:scale-95 active:translate-y-0"
+                    >
+                        <span className="relative z-10 flex items-center gap-2">
+                            {t('buy_now')} <ExternalLink className="w-3.5 h-3.5" />
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                    </a>
+                </div>
             </div>
-        </div>
+        </motion.div>
     );
 }

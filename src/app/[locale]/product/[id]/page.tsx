@@ -5,6 +5,7 @@ import { Star, ExternalLink, ArrowLeft, Activity } from 'lucide-react';
 import ProsConsList from '@/components/ProsConsList';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import ReviewChart from '@/components/ReviewChart';
 
 export async function generateMetadata({ params }: { params: { id: string, locale: string } }): Promise<Metadata> {
     const { data: product } = await supabase.from('products').select('*').eq('id', params.id).single();
@@ -30,21 +31,65 @@ export default async function ProductPage({ params: { id, locale } }: { params: 
         return notFound();
     }
 
-    // Mock AI generated content (since we don't have it in DB schema yet)
-    const pros = [
-        "Exceptional build quality and durability",
-        "High user satisfaction score (4.8/5)",
-        "Great value for money in its category",
-        "Energy efficient performance"
-    ];
-    const cons = [
-        "Premium price point",
-        "Limited color options available"
-    ];
-
     const title = locale === 'en' ? product.title_en : product.title_ar;
-    const description = locale === 'en' ? product.description_en : product.description_ar;
+    const fullDescription = locale === 'en' ? product.description_en : product.description_ar;
     const isRtl = locale === 'ar';
+
+    // Parse Description for AI Verdict
+    let summary = fullDescription || "";
+    let pros: string[] = [];
+    let cons: string[] = [];
+    let scores: { subject: string; A: number; fullMark: number }[] = [];
+
+    if (fullDescription && fullDescription.includes('###SCORES###')) {
+        // 1. Separate Description from Metadata
+        const descParts = fullDescription.split('###PROS###');
+        summary = descParts[0].trim();
+
+        const metadataPart = descParts[1] || "";
+
+        if (metadataPart) {
+            // Extract PROS
+            const prosSplit = metadataPart.split('###CONS###');
+            pros = prosSplit[0].split('\n').map((l: string) => l.replace(/^-\s*/, '').trim()).filter(Boolean);
+
+            if (prosSplit[1]) {
+                const consSplit = prosSplit[1].split('###SCORES###');
+                cons = consSplit[0].split('\n').map((l: string) => l.replace(/^-\s*/, '').trim()).filter(Boolean);
+
+                // Extract SCORES
+                if (consSplit[1]) {
+                    try {
+                        const scoresJson = JSON.parse(consSplit[1].trim());
+                        scores = Object.entries(scoresJson).map(([key, value]) => ({
+                            subject: key,
+                            A: value as number,
+                            fullMark: 100
+                        }));
+                    } catch (e) {
+                        console.error("Failed to parse scores", e);
+                    }
+                }
+            }
+        }
+    } else if (fullDescription && fullDescription.includes('###PROS###')) {
+        // Fallback for old PROS/CONS format without SCORES
+        const parts = fullDescription.split('###PROS###');
+        summary = parts[0].trim();
+        if (parts[1]) {
+            const prosConsParts = parts[1].split('###CONS###');
+            pros = prosConsParts[0].split('\n').map((l: string) => l.replace(/^-\s*/, '').trim()).filter(Boolean);
+            if (prosConsParts[1]) {
+                cons = prosConsParts[1].split('\n').map((l: string) => l.replace(/^-\s*/, '').trim()).filter(Boolean);
+            }
+        }
+    }
+
+    // Fallback if parsing fails (for old data)
+    if (pros.length === 0) {
+        // Only if no pros found, maybe use summary as just description
+        // Or keep empty arrays
+    }
 
     return (
         <article className="min-h-screen bg-black text-white pt-24 pb-20">
@@ -88,8 +133,8 @@ export default async function ProductPage({ params: { id, locale } }: { params: 
                                 <Activity className="w-5 h-5" />
                                 AI Analysis
                             </div>
-                            <p className="text-gray-300 leading-relaxed text-lg">
-                                {description}
+                            <p className="text-gray-300 leading-relaxed text-lg whitespace-pre-line">
+                                {summary}
                             </p>
                         </div>
 
@@ -111,13 +156,29 @@ export default async function ProductPage({ params: { id, locale } }: { params: 
 
                 </div>
 
-                {/* Pros & Cons Section */}
-                <section className="mt-20">
-                    <h2 className="text-2xl font-bold text-center mb-10">
-                        {locale === 'en' ? 'The AI Verdict' : 'حكم الذكاء الاصطناعي'}
-                    </h2>
-                    <ProsConsList pros={pros} cons={cons} />
-                </section>
+                {/* PROS & CONS + CHART SECTION */}
+                {(pros.length > 0 || scores.length > 0) && (
+                    <section className="mt-20">
+                        <h2 className="text-3xl font-bold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
+                            {locale === 'en' ? 'The AI Verdict' : 'حكم الذكاء الاصطناعي'}
+                        </h2>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            {/* Left: Pros & Cons */}
+                            <div>
+                                <ProsConsList pros={pros} cons={cons} />
+                            </div>
+
+                            {/* Right: Chart */}
+                            {scores.length > 0 && (
+                                <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-10 backdrop-blur-sm">
+                                    <h3 className="text-xl font-bold mb-6 text-center text-gray-300">Performance Analysis</h3>
+                                    <ReviewChart scores={scores} />
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                )}
 
             </div>
         </article>

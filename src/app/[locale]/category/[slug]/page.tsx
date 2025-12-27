@@ -1,61 +1,90 @@
-import { mockProducts } from '@/lib/mockData';
+import { supabase } from '@/lib/supabaseClient';
 import ProductCard from '@/components/ProductCard';
-import Navbar from '@/components/Navbar';
 import CategoryFilter from '@/components/CategoryFilter';
+import Navbar from '@/components/Navbar';
 import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
 
-export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
-    const categoryName = slug.charAt(0).toUpperCase() + slug.slice(1);
-    return {
-        title: `${categoryName} Products - AI SmartChoice`,
-        description: `Browse our best ${slug} products selected by AI.`
-    };
-}
+// Revalidate every hour
+export const revalidate = 3600;
 
-export default function CategoryPage({ params: { locale, slug } }: { params: { locale: string, slug: string } }) {
-    // Basic mapping or case-insensitive comparison
-    const targetCategory = slug.toLowerCase();
+async function getCategoryProducts(categorySlug: string) {
+    // Decode slug (e.g., "smart%20home" -> "Smart Home")
+    // We'll perform a case-insensitive search
+    const decodedSlug = decodeURIComponent(categorySlug).replace(/-/g, ' ');
 
-    // Allow mapping "electronics" -> "Tech" if needed, or update mockData to be more consistent.
-    // tailored mapping:
-    let filterCategory = targetCategory;
-    if (targetCategory === 'electronics') filterCategory = 'tech';
+    // Fetch products
+    const { data: products, error } = await supabase
+        .from('products')
+        .select('*')
+        .ilike('category', decodedSlug)
+        .order('is_featured', { ascending: false });
 
-    const products = mockProducts.filter(p => p.category.toLowerCase() === filterCategory);
-
-    // If no products found, 404? Or just show empty?
-    if (products.length === 0) {
-        // Option: return notFound();
+    if (error) {
+        console.error('Error fetching category products:', error);
+        return [];
     }
 
-    // Capitalize for display
-    const displayCategory = slug.charAt(0).toUpperCase() + slug.slice(1);
+    return products || [];
+}
+
+async function getAllCategories() {
+    const { data } = await supabase
+        .from('products')
+        .select('category');
+
+    if (!data) return ['All'];
+
+    const uniqueCats = Array.from(new Set(data.map((p: any) => p.category))).filter(Boolean).sort();
+    return ['All', ...uniqueCats];
+}
+
+export default async function CategoryPage({ params: { locale, slug } }: { params: { locale: string, slug: string } }) {
+    const products = await getCategoryProducts(slug);
+    const allCategories = await getAllCategories();
+    const decodedCategory = decodeURIComponent(slug).replace(/-/g, ' ');
+
+    // Use a capitalized title for display
+    const displayTitle = decodedCategory.charAt(0).toUpperCase() + decodedCategory.slice(1);
 
     return (
-        <main className="min-h-screen bg-black text-white">
+        <main className="min-h-screen relative bg-black text-white">
             <Navbar locale={locale} />
 
-            <div className="pt-24 pb-12">
-                <h1 className="text-3xl md:text-5xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                    {displayCategory}
-                </h1>
-
-                <CategoryFilter selectedCategory={displayCategory} useLinks={true} />
-
-                <div className="max-w-7xl mx-auto px-4">
-                    {products.length === 0 ? (
-                        <div className="text-center py-20 text-gray-500">
-                            <p className="text-xl">No products found for this category.</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {products.map((product) => (
-                                <ProductCard key={product.id} product={product as any} locale={locale} />
-                            ))}
-                        </div>
-                    )}
+            <div className="pt-24 pb-12 px-4 max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="mb-8 text-center">
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
+                        {displayTitle}
+                    </h1>
+                    <p className="text-gray-400">
+                        {products.length} {products.length === 1 ? 'product' : 'products'} found
+                    </p>
                 </div>
+
+                {/* Filter reused with links */}
+                <CategoryFilter
+                    categories={allCategories as string[]}
+                    selectedCategory={decodedCategory}
+                    useLinks={true}
+                />
+
+                {/* Grid */}
+                {products.length === 0 ? (
+                    <div className="text-center py-20 bg-white/5 rounded-3xl border border-white/10">
+                        <p className="text-xl text-gray-400 mb-4">No products found in this category.</p>
+                        <a href={`/${locale}`} className="text-primary hover:underline">
+                            Return to All Products
+                        </a>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {products.map((product) => (
+                            <div key={product.id} className="h-full">
+                                <ProductCard product={product} locale={locale} />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </main>
     );
