@@ -1,0 +1,18 @@
+# AI SmartChoice - Amazon Affiliate Product Recommendations
+# https://ai-smartchoice.com
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://ai-smartchoice.com/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Allow search engines to index all pages
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /

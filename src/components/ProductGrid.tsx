@@ -7,12 +7,13 @@ import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mockProducts } from '@/lib/mockData';
 import { ArrowDownAZ, ArrowUpAZ, Star, Rocket, LayoutGrid } from 'lucide-react';
+import { Product, SortOption } from '@/lib/types';
 
 export default function ProductGrid({ locale }: { locale: string }) {
-    const [products, setProducts] = useState<any[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState('All');
-    const [sortBy, setSortBy] = useState('featured'); // featured, price-asc, price-desc, rating
+    const [sortBy, setSortBy] = useState<SortOption>('featured');
     const [categories, setCategories] = useState<string[]>(['All']);
     const searchParams = useSearchParams();
     const searchTerm = searchParams.get('search')?.toLowerCase() || '';
@@ -100,7 +101,7 @@ export default function ProductGrid({ locale }: { locale: string }) {
                     <div className="relative group">
                         <select
                             value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
+                            onChange={(e) => setSortBy(e.target.value as SortOption)}
                             className="appearance-none bg-white/5 border border-white/10 text-white px-4 py-2.5 pr-10 rounded-xl text-sm font-medium hover:bg-white/10 hover:border-white/20 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer w-full md:w-auto"
                         >
                             <option value="featured" className="bg-neutral-900">✨ Best Match</option>

@@ -9,6 +9,7 @@ create table products (
   affiliate_link text,
   category text,
   rating float,
+  price decimal(10, 2) default 0.00,
   is_featured boolean default false,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -20,3 +21,6 @@ alter table products enable row level security;
 create policy "Public products are viewable by everyone."
   on products for select
   using ( true );
+
+-- Add price column if it doesn't exist (for existing databases)
+-- ALTER TABLE products ADD COLUMN IF NOT EXISTS price decimal(10, 2) default 0.00;

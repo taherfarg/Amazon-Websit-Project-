@@ -1,19 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-
-type Product = {
-    id: number | string;
-    title_en: string;
-    title_ar: string;
-    image_url: string;
-    affiliate_link: string;
-    rating: number;
-    category: string;
-    description_en: string; // Needed for display in wishlist if we want more details
-    description_ar: string;
-    // Add other fields as necessary
-};
+import { Product } from '@/lib/types';
 
 interface WishlistContextType {
     wishlist: Product[];

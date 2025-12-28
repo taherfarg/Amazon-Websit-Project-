@@ -1,4 +1,6 @@
-export const mockProducts = [
+import { Product } from './types';
+
+export const mockProducts: Product[] = [
     {
         id: 101,
         title_en: 'Sony WH-1000XM5 Wireless Noise Canceling Headphones',
@@ -9,6 +11,7 @@ export const mockProducts = [
         affiliate_link: 'https://www.amazon.com/dp/B09XS7JWHH',
         category: 'Audio',
         rating: 4.8,
+        price: 348.00,
         is_featured: true
     },
     {
@@ -21,6 +24,7 @@ export const mockProducts = [
         affiliate_link: 'https://www.amazon.com/dp/B09B8V1LZ3',
         category: 'Smart Home',
         rating: 4.7,
+        price: 49.99,
         is_featured: true
     },
     {
@@ -33,6 +37,7 @@ export const mockProducts = [
         affiliate_link: 'https://www.amazon.com/dp/B09HMSW5T2',
         category: 'Tech',
         rating: 4.9,
+        price: 99.99,
         is_featured: false
     },
     {
@@ -45,18 +50,20 @@ export const mockProducts = [
         affiliate_link: 'https://www.amazon.com/dp/B00FLYWNYQ',
         category: 'Kitchen',
         rating: 4.8,
+        price: 89.95,
         is_featured: false
     },
     {
         id: 105,
         title_en: 'Kindle Paperwhite (16 GB)',
         title_ar: 'كيند بيبيروايت (16 جيجابايت)',
-        description_en: 'Now with a 6.8” display and adjustable warm light. Purpose-built for reading – with a flush-front design and glare-free display.',
+        description_en: 'Now with a 6.8" display and adjustable warm light. Purpose-built for reading – with a flush-front design and glare-free display.',
         description_ar: 'الآن بشاشة 6.8 بوصة وإضاءة دافئة قابلة للتعديل. مصمم خصيصًا للقراءة - بتصميم أمامي مسطح وشاشة خالية من التوهج.',
         image_url: 'https://m.media-amazon.com/images/I/51p4b7qC6lL._AC_SX679_.jpg',
         affiliate_link: 'https://www.amazon.com/dp/B09TMN5M52',
         category: 'Tech',
         rating: 4.8,
+        price: 139.99,
         is_featured: true
     },
     {
@@ -69,6 +76,7 @@ export const mockProducts = [
         affiliate_link: 'https://www.amazon.com/dp/B01N1QO1K8',
         category: 'Kitchen',
         rating: 4.6,
+        price: 159.00,
         is_featured: false
     },
     {
@@ -81,6 +89,7 @@ export const mockProducts = [
         affiliate_link: 'https://www.amazon.com/dp/B0932QJ2JZ',
         category: 'Tech',
         rating: 4.7,
+        price: 79.00,
         is_featured: true
     },
     {
@@ -93,6 +102,7 @@ export const mockProducts = [
         affiliate_link: 'https://www.amazon.com/dp/B0979RHD9H',
         category: 'Home',
         rating: 4.8,
+        price: 649.99,
         is_featured: false
     },
     {
@@ -105,6 +115,7 @@ export const mockProducts = [
         affiliate_link: 'https://www.amazon.com/dp/B0052MFA38',
         category: 'Tools',
         rating: 4.8,
+        price: 99.00,
         is_featured: false
     }
 ];
