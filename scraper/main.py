@@ -17,7 +17,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 AMAZON_TAG = os.getenv("AMAZON_PARTNER_TAG", "techdealsuae-21")
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "glm4:latest"
+OLLAMA_MODEL = "devstral-small-2:24b"
 
 # Headers for requests
 HEADERS = {
@@ -129,7 +129,7 @@ def extract_all_images(soup):
     seen_urls = set()
     
     try:
-        # Method 1: Main image
+        # Method 1: Main image via landingImage
         main_img = soup.find("img", id="landingImage")
         if main_img:
             # Try to get high-res version from data attributes
@@ -153,8 +153,11 @@ def extract_all_images(soup):
                             seen_urls.add(url)
                             break
         
-        # Method 2: Image gallery thumbnails
+        # Method 2: Image gallery thumbnails (Standard)
         thumb_containers = soup.find_all("li", class_="imageThumbnail")
+        if not thumb_containers:
+             thumb_containers = soup.select("#altImages li.item")
+             
         for thumb in thumb_containers:
             img = thumb.find("img")
             if img:
@@ -166,11 +169,12 @@ def extract_all_images(soup):
                     full_url = re.sub(r'_AC_US\d+_', '_AC_SL1500_', src)
                     full_url = re.sub(r'_SX\d+_', '_SL1500_', full_url)
                     full_url = re.sub(r'_SS\d+_', '_SL1500_', full_url)
+                    full_url = re.sub(r'_SY\d+_', '_SL1500_', full_url)
                     
-                    if full_url not in seen_urls:
+                    if full_url not in seen_urls and full_url.startswith("http"):
                         images.append({"url": full_url, "type": "gallery", "alt": img.get("alt", "")})
                         seen_urls.add(full_url)
-        
+
         # Method 3: Alt images from script data
         scripts = soup.find_all("script", type="text/javascript")
         for script in scripts:
@@ -187,14 +191,24 @@ def extract_all_images(soup):
                 except:
                     pass
         
-        # Method 4: imgTagWrapperId (fallback)
+        # Method 4: Fallback to any large image in main container if nothing found
         if len(images) == 0:
             img_div = soup.find("div", id="imgTagWrapperId")
             if img_div:
                 img = img_div.find("img")
                 if img and img.get("src"):
                     images.append({"url": img["src"], "type": "main", "alt": img.get("alt", "")})
-                    
+            
+            # Additional fallback
+            if len(images) == 0:
+                 all_imgs = soup.select("#main-image-container img")
+                 for img in all_imgs:
+                     src = img.get("src")
+                     if src and "sprite" not in src and "transparent" not in src and src.startswith("http"):
+                         if src not in seen_urls:
+                             images.append({"url": src, "type": "fallback", "alt": img.get("alt", "")})
+                             seen_urls.add(src)
+
     except Exception as e:
         print(f"⚠️ Error extracting images: {e}")
     
@@ -332,18 +346,37 @@ def scrape_amazon_product_enhanced(url):
         print(f"⭐ Rating: {reviews_data['average_rating']} ({reviews_data['total_reviews']} reviews)")
         
         # Extract Features (Bullets)
-        bullets = [li.get_text(strip=True) for li in soup.select("#feature-bullets li span")]
-        description_raw = " ".join(bullets[:5])
+        bullets = []
+        try:
+            bullet_div = soup.find("div", id="feature-bullets")
+            if bullet_div:
+                bullets = [li.get_text(strip=True) for li in bullet_div.find_all("span", class_="a-list-item")]
+            
+            # Fallback to product description if bullets are empty or sparse
+            if not bullets or len(bullets) < 2:
+                desc_div = soup.find("div", id="productDescription")
+                if desc_div:
+                    desc_text = desc_div.get_text(" ", strip=True)
+                    if desc_text:
+                        bullets.append(desc_text[:1000]) # Add valid description as part of the content
+        except Exception as e:
+            print(f"⚠️ Error extracting options: {e}")
+
+        description_raw = " ".join(bullets[:7]) # Increased to 7 lines for better context
         
         # Extract Category
         category = "General"
         try:
-            breadcrumb_div = soup.find("div", {"id": "wayfinding-breadcrumbs_feature_div"})
+            breadcrumb_div = soup.find("div", id="wayfinding-breadcrumbs_feature_div")
             if breadcrumb_div:
                 items = breadcrumb_div.find_all("li")
                 clean_items = [i.get_text(strip=True) for i in items if len(i.get_text(strip=True)) > 1]
                 if clean_items:
                     category = clean_items[0]
+                    # Also try to get subcategory for better classification
+                    if len(clean_items) > 1:
+                        # Append the last breadcrumb as a specific tag
+                        category = f"{category} - {clean_items[-1]}"
         except Exception as e:
             print(f"⚠️ Could not extract category: {e}")
         
@@ -421,10 +454,16 @@ def generate_ai_content(product_data):
             return json.loads(content)
         else:
             print(f"❌ Ollama Error: {response.status_code}")
+            # Try to print more details from response if available
+            try:
+                print(f"Detail: {response.text}")
+            except:
+                pass
             raise Exception("Ollama API failed")
             
     except Exception as e:
         print(f"❌ AI Error: {e}")
+        print("💡 Tip: Make sure Ollama is running (run 'ollama serve') and the model 'devstral-small-2:24b' is pulled.")
         return {
             "title_en": product_data['title'],
             "title_ar": product_data['title'],

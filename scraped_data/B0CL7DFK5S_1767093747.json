@@ -1,0 +1,66 @@
+{
+  "title": "Apple Pencil (USB-C)",
+  "brand": "Apple",
+  "asin": "B0CL7DFK5S",
+  "image_url": "https://m.media-amazon.com/images/I/41s9DmRSgcL._AC_SL1500_.jpg",
+  "all_images": [
+    {
+      "url": "https://m.media-amazon.com/images/I/41s9DmRSgcL._AC_SL1500_.jpg",
+      "type": "main",
+      "alt": "Apple Pencil (USB-C)"
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/11v8v3dJqdL._AC_SR38,50_.jpg",
+      "type": "gallery",
+      "alt": ""
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/112RZE+pEnL._AC_SR38,50_.jpg",
+      "type": "gallery",
+      "alt": ""
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/41-sb6veDZL._AC_SR38,50_.jpg",
+      "type": "gallery",
+      "alt": ""
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/41gewgvQXWL._AC_SR38,50_.jpg",
+      "type": "gallery",
+      "alt": ""
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/51IYujKRfHL._AC_SL1500_.jpg",
+      "type": "color_variant",
+      "alt": ""
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/71Yn5C4wu2L._AC_SL1500_.jpg",
+      "type": "color_variant",
+      "alt": ""
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/61lsMBGaytL._AC_SL1500_.jpg",
+      "type": "color_variant",
+      "alt": ""
+    }
+  ],
+  "raw_desc": "EASY AND NATURAL—Write, sketch, and draw with pixel-perfect precision. Apple Pencil (USB-C) does it all with low latency and tilt sensitivity. Apple Pencil pairs and charges via USB-C and features a flat edge that attaches magnetically. TRANSFORMS IPAD INTO A CANVAS—Draw, sketch, color, take notes, and mark up documents. Use built-in apps like Notes and Freeform, or choose from over a million more apps available on the App Store. And for pros, use Apple Pencil hover on iPad Pro (M4 and M5), iPad Air (M2 and M3), and iPad mini (A17 Pro) to preview your mark before you make it.",
+  "affiliate_link": "https://www.amazon.ae/Apple-Pencil-USB-C/dp/B0CL7DFK5S/ref=zg_bs_g_mobile-phones_d_sccl_19/258-3362205-7482561?tag=techdealsuae-21",
+  "category": "General",
+  "price": {
+    "current_price": null,
+    "original_price": null,
+    "currency": "AED",
+    "discount_percent": null,
+    "price_per_unit": null
+  },
+  "reviews": {
+    "total_reviews": 56347,
+    "average_rating": 4.5,
+    "rating_breakdown": {},
+    "reviews": []
+  },
+  "rating": 4.5,
+  "scraped_at": "2025-12-30T15:22:27.210387"
+}
