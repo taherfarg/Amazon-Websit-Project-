@@ -110,7 +110,7 @@ export default function Recommendations({ locale, currentProductId, allProducts 
                                 </h3>
                                 <div className="flex items-center justify-between mt-2">
                                     <span className="text-sm font-bold text-white">
-                                        ${product.price?.toFixed(2)}
+                                        {product.price?.toFixed(2)} {locale === 'en' ? 'AED' : 'د.إ'}
                                     </span>
                                     <span className="text-xs text-amber-400">
                                         ⭐ {product.rating}

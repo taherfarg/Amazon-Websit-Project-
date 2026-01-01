@@ -110,10 +110,10 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
                                         {locale === 'en' ? 'Best Price' : 'أفضل سعر'}
                                     </span>
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-2xl text-gray-400">$</span>
                                         <span className="text-4xl font-bold text-white">
                                             {product.price?.toFixed(2) || 'N/A'}
                                         </span>
+                                        <span className="text-2xl text-gray-400">{locale === 'en' ? 'AED' : 'د.إ'}</span>
                                     </div>
                                 </div>
 
@@ -132,8 +132,8 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
                                     <button
                                         onClick={handleWishlistToggle}
                                         className={`p-3 rounded-xl border transition-all ${isWishlisted
-                                                ? 'bg-red-500/20 border-red-500/50 text-red-400'
-                                                : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                                            ? 'bg-red-500/20 border-red-500/50 text-red-400'
+                                            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
                                             }`}
                                     >
                                         <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
@@ -143,8 +143,8 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
                                         onClick={handleCompareToggle}
                                         disabled={isComparing}
                                         className={`p-3 rounded-xl border transition-all ${isComparing
-                                                ? 'bg-primary/20 border-primary/50 text-primary'
-                                                : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                                            ? 'bg-primary/20 border-primary/50 text-primary'
+                                            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
                                             }`}
                                     >
                                         <GitCompare className="w-5 h-5" />

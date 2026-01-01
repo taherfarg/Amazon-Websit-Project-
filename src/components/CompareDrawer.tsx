@@ -93,7 +93,7 @@ export default function CompareDrawer({ locale }: CompareDrawerProps) {
                             {/* Comparison Grid */}
                             <div className="p-4 md:p-6">
                                 <div className={`grid gap-4 ${compareList.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
-                                        compareList.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
+                                    compareList.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
                                     }`}>
                                     {compareList.map((product) => (
                                         <div
@@ -153,7 +153,7 @@ export default function CompareDrawer({ locale }: CompareDrawerProps) {
                                                             {locale === 'en' ? 'Price' : 'السعر'}
                                                         </span>
                                                         <span className="text-white font-bold">
-                                                            ${product.price?.toFixed(2) || 'N/A'}
+                                                            {product.price?.toFixed(2) || 'N/A'} {locale === 'en' ? 'AED' : 'د.إ'}
                                                         </span>
                                                     </div>
                                                 </div>

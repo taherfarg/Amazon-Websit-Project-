@@ -89,7 +89,7 @@ export default function RecentlyViewed({ locale }: RecentlyViewedProps) {
                                 {getTitle(product)}
                             </h3>
                             <p className="text-sm text-gray-500 mt-1">
-                                ${product.price?.toFixed(2) || 'N/A'}
+                                {product.price?.toFixed(2) || 'N/A'} {locale === 'en' ? 'AED' : 'د.إ'}
                             </p>
                         </Link>
                     </motion.div>
