@@ -1,0 +1,56 @@
+{
+  "title": "Harry Potter The Complete Collection by J. K. Rowling - Paperback 5 Books Without Box",
+  "brand": "",
+  "asin": "1408856778",
+  "image_url": "https://m.media-amazon.com/images/I/81uRUnI9Y3L._SL1500_.jpg",
+  "all_images": [
+    {
+      "url": "https://m.media-amazon.com/images/I/81uRUnI9Y3L._SL1500_.jpg",
+      "type": "main",
+      "alt": "Harry Potter The Complete Collection by J. K. Rowling - Paperback 5 Books Without Box"
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/41C3OItzggL._SL1500_SL1500_CR,0,0,38,50_.jpg",
+      "type": "gallery",
+      "alt": ""
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/41dioXlutwL._SL1500_SL1500_CR,0,0,38,50_.jpg",
+      "type": "gallery",
+      "alt": ""
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/515VsTUXKkL._SL1500_SL1500_CR,0,0,38,50_.jpg",
+      "type": "gallery",
+      "alt": ""
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/71n2ruQNcpL._SL1500_.jpg",
+      "type": "color_variant",
+      "alt": ""
+    },
+    {
+      "url": "https://m.media-amazon.com/images/I/81vk-9zjgpL._SL1500_.jpg",
+      "type": "color_variant",
+      "alt": ""
+    }
+  ],
+  "raw_desc": "",
+  "affiliate_link": "https://www.amazon.ae/Harry-Potter-Complete-Collection-Rowling/dp/1408856778/ref=zg_bs_g_books_d_sccl_22/259-0826619-2297231?tag=techdealsuae-21",
+  "category": "Books - Friendship, Social Skills & School Life",
+  "price": {
+    "current_price": 164.0,
+    "original_price": 346.29,
+    "currency": "AED",
+    "discount_percent": 52.6,
+    "price_per_unit": null
+  },
+  "reviews": {
+    "total_reviews": 38158,
+    "average_rating": 4.8,
+    "rating_breakdown": {},
+    "reviews": []
+  },
+  "rating": 4.8,
+  "scraped_at": "2025-12-30T15:37:10.998374"
+}

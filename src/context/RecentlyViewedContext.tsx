@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Product } from '@/lib/types';
 
 interface RecentlyViewedContextType {
@@ -35,7 +35,7 @@ export function RecentlyViewedProvider({ children }: { children: React.ReactNode
         }
     }, [recentlyViewed]);
 
-    const addToRecentlyViewed = (product: Product) => {
+    const addToRecentlyViewed = React.useCallback((product: Product) => {
         setRecentlyViewed(prev => {
             // Remove if already exists
             const filtered = prev.filter(p => p.id !== product.id);
@@ -44,12 +44,12 @@ export function RecentlyViewedProvider({ children }: { children: React.ReactNode
             // Limit to max items
             return updated.slice(0, MAX_RECENTLY_VIEWED);
         });
-    };
+    }, []);
 
-    const clearRecentlyViewed = () => {
+    const clearRecentlyViewed = React.useCallback(() => {
         setRecentlyViewed([]);
         localStorage.removeItem('recentlyViewed');
-    };
+    }, []);
 
     return (
         <RecentlyViewedContext.Provider value={{
