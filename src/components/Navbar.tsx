@@ -20,8 +20,10 @@ export default function Navbar({ locale }: { locale: string }) {
     const { wishlist } = useWishlist();
     const { compareList, setCompareOpen } = useCompare();
     const [isScrolled, setIsScrolled] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
         };

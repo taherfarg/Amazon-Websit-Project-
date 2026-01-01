@@ -1,4 +1,5 @@
 'use client';
+import { useState, useEffect } from 'react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Tooltip } from 'recharts';
 
 interface ReviewChartProps {
@@ -10,7 +11,22 @@ interface ReviewChartProps {
 }
 
 export default function ReviewChart({ scores }: ReviewChartProps) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     if (!scores || scores.length === 0) return null;
+
+    // Prevent hydration mismatch by only rendering on client
+    if (!mounted) {
+        return (
+            <div className="w-full h-[300px] md:h-[350px] flex items-center justify-center">
+                <div className="animate-pulse text-gray-400">Loading chart...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full h-[300px] md:h-[350px]">

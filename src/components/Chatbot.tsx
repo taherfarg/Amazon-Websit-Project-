@@ -129,9 +129,10 @@ export default function Chatbot() {
             </motion.button>
 
             {/* Chat Window */}
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
                 {isOpen && (
                     <motion.div
+                        key="chatbot-window"
                         initial={{ opacity: 0, y: 50, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 50, scale: 0.9 }}

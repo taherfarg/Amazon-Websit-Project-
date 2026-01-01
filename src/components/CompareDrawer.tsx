@@ -14,14 +14,13 @@ export default function CompareDrawer({ locale }: CompareDrawerProps) {
 
     const getTitle = (product: any) => locale === 'en' ? product.title_en : product.title_ar;
 
-    if (compareList.length === 0) return null;
-
     return (
         <>
             {/* Floating Compare Button */}
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
                 {!isCompareOpen && compareList.length > 0 && (
                     <motion.button
+                        key="compare-button"
                         initial={{ opacity: 0, x: 100 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 100 }}
@@ -38,8 +37,8 @@ export default function CompareDrawer({ locale }: CompareDrawerProps) {
             </AnimatePresence>
 
             {/* Compare Drawer */}
-            <AnimatePresence>
-                {isCompareOpen && (
+            <AnimatePresence mode="wait">
+                {isCompareOpen && compareList.length > 0 && (
                     <>
                         {/* Backdrop */}
                         <motion.div
