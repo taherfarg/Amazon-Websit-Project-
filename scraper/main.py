@@ -17,7 +17,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 AMAZON_TAG = os.getenv("AMAZON_PARTNER_TAG", "techdealsuae-21")
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "glm4:latest"
+OLLAMA_MODEL = "devstral-small-2:24b"
 
 # Headers for requests
 HEADERS = {
