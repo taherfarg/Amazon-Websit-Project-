@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -12,126 +13,68 @@ import {
     Gamepad2,
     Dumbbell,
     Sparkles,
-    ArrowRight
+    ArrowRight,
+    Heart,
+    BookOpen,
+    Baby,
+    Car,
+    PawPrint,
+    Wrench,
+    Package
 } from 'lucide-react';
+import { getCategories, Category } from '@/lib/api/categories';
 
-interface Category {
-    id: string;
-    name: string;
-    nameAr: string;
-    slug: string;
-    icon: React.ElementType;
-    color: string;
-    gradient: string;
-    description: string;
-    descriptionAr: string;
-    productCount: number;
+// Map icon names to components
+const iconMap: Record<string, React.ElementType> = {
+    Laptop, Shirt, Home, Headphones, Watch, Camera, Gamepad2,
+    Dumbbell, Heart, BookOpen, Baby, Car, PawPrint, Wrench, Package
+};
+
+function getIcon(iconName: string | null): React.ElementType {
+    if (!iconName) return Package;
+    return iconMap[iconName] || Package;
 }
 
-const categories: Category[] = [
-    {
-        id: 'tech',
-        name: 'Technology',
-        nameAr: 'التكنولوجيا',
-        slug: 'tech',
-        icon: Laptop,
-        color: 'text-blue-400',
-        gradient: 'from-blue-500/20 to-cyan-500/20',
-        description: 'Laptops, phones, tablets & more',
-        descriptionAr: 'لابتوبات، هواتف، تابلت والمزيد',
-        productCount: 156
-    },
-    {
-        id: 'audio',
-        name: 'Audio',
-        nameAr: 'الصوتيات',
-        slug: 'audio',
-        icon: Headphones,
-        color: 'text-purple-400',
-        gradient: 'from-purple-500/20 to-pink-500/20',
-        description: 'Headphones, speakers & earbuds',
-        descriptionAr: 'سماعات، سبيكرات وإيربودز',
-        productCount: 89
-    },
-    {
-        id: 'fashion',
-        name: 'Fashion',
-        nameAr: 'الأزياء',
-        slug: 'fashion',
-        icon: Shirt,
-        color: 'text-pink-400',
-        gradient: 'from-pink-500/20 to-rose-500/20',
-        description: 'Clothes, shoes & accessories',
-        descriptionAr: 'ملابس، أحذية وإكسسوارات',
-        productCount: 234
-    },
-    {
-        id: 'home',
-        name: 'Home & Living',
-        nameAr: 'المنزل',
-        slug: 'home',
-        icon: Home,
-        color: 'text-amber-400',
-        gradient: 'from-amber-500/20 to-orange-500/20',
-        description: 'Furniture, decor & appliances',
-        descriptionAr: 'أثاث، ديكور وأجهزة منزلية',
-        productCount: 178
-    },
-    {
-        id: 'watches',
-        name: 'Watches',
-        nameAr: 'الساعات',
-        slug: 'watches',
-        icon: Watch,
-        color: 'text-emerald-400',
-        gradient: 'from-emerald-500/20 to-teal-500/20',
-        description: 'Smart watches & luxury timepieces',
-        descriptionAr: 'ساعات ذكية وفاخرة',
-        productCount: 67
-    },
-    {
-        id: 'cameras',
-        name: 'Cameras',
-        nameAr: 'الكاميرات',
-        slug: 'cameras',
-        icon: Camera,
-        color: 'text-red-400',
-        gradient: 'from-red-500/20 to-orange-500/20',
-        description: 'DSLR, mirrorless & action cams',
-        descriptionAr: 'كاميرات احترافية وأكشن',
-        productCount: 45
-    },
-    {
-        id: 'gaming',
-        name: 'Gaming',
-        nameAr: 'الألعاب',
-        slug: 'gaming',
-        icon: Gamepad2,
-        color: 'text-indigo-400',
-        gradient: 'from-indigo-500/20 to-violet-500/20',
-        description: 'Consoles, games & accessories',
-        descriptionAr: 'أجهزة ألعاب وإكسسوارات',
-        productCount: 123
-    },
-    {
-        id: 'sports',
-        name: 'Sports & Fitness',
-        nameAr: 'الرياضة',
-        slug: 'sports',
-        icon: Dumbbell,
-        color: 'text-lime-400',
-        gradient: 'from-lime-500/20 to-green-500/20',
-        description: 'Equipment, gear & activewear',
-        descriptionAr: 'معدات رياضية وملابس',
-        productCount: 98
-    }
-];
+// Map colors to gradients
+function getGradient(color: string | null): string {
+    const gradientMap: Record<string, string> = {
+        'text-blue-400': 'from-blue-500/20 to-cyan-500/20',
+        'text-purple-400': 'from-purple-500/20 to-pink-500/20',
+        'text-pink-400': 'from-pink-500/20 to-rose-500/20',
+        'text-amber-400': 'from-amber-500/20 to-orange-500/20',
+        'text-rose-400': 'from-rose-500/20 to-pink-500/20',
+        'text-lime-400': 'from-lime-500/20 to-green-500/20',
+        'text-indigo-400': 'from-indigo-500/20 to-violet-500/20',
+        'text-teal-400': 'from-teal-500/20 to-cyan-500/20',
+        'text-cyan-400': 'from-cyan-500/20 to-blue-500/20',
+        'text-slate-400': 'from-slate-500/20 to-gray-500/20',
+        'text-orange-400': 'from-orange-500/20 to-amber-500/20',
+        'text-yellow-400': 'from-yellow-500/20 to-amber-500/20',
+        'text-emerald-400': 'from-emerald-500/20 to-teal-500/20',
+        'text-red-400': 'from-red-500/20 to-orange-500/20',
+    };
+    return gradientMap[color || ''] || 'from-primary/20 to-secondary/20';
+}
 
 interface CategoryShowcaseProps {
     locale: string;
 }
 
 export default function CategoryShowcase({ locale }: CategoryShowcaseProps) {
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getCategories({ featured: true, withCounts: true })
+            .then(setCategories)
+            .finally(() => setLoading(false));
+    }, []);
+
+    // Don't render if no categories
+    if (!loading && categories.length === 0) {
+        return null;
+    }
+
     return (
         <section className="w-full max-w-7xl mx-auto px-4 py-16">
             {/* Section Header */}
@@ -158,49 +101,69 @@ export default function CategoryShowcase({ locale }: CategoryShowcaseProps) {
                 </p>
             </motion.div>
 
+            {/* Loading State */}
+            {loading && (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    {[...Array(8)].map((_, i) => (
+                        <div key={i} className="animate-pulse flex flex-col items-center p-6 rounded-3xl bg-white/5 border border-white/10">
+                            <div className="w-16 h-16 rounded-2xl bg-white/10 mb-4" />
+                            <div className="w-24 h-4 rounded bg-white/10 mb-2" />
+                            <div className="w-16 h-3 rounded bg-white/10" />
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {/* Category Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                {categories.map((category, index) => (
-                    <motion.div
-                        key={category.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.05 }}
-                    >
-                        <Link
-                            href={`/${locale}/category/${category.slug}`}
-                            className="group relative flex flex-col items-center p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-[0_0_40px_rgba(99,102,241,0.1)] overflow-hidden"
-                        >
-                            {/* Gradient Background */}
-                            <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+            {!loading && categories.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    {categories.map((category, index) => {
+                        const IconComponent = getIcon(category.icon);
+                        const gradient = getGradient(category.color);
 
-                            {/* Icon */}
-                            <div className={`relative z-10 p-4 rounded-2xl bg-white/5 border border-white/10 mb-4 group-hover:scale-110 transition-transform duration-300 ${category.color}`}>
-                                <category.icon className="w-8 h-8" />
-                            </div>
+                        return (
+                            <motion.div
+                                key={category.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.05 }}
+                            >
+                                <Link
+                                    href={`/${locale}/category/${category.slug}`}
+                                    className="group relative flex flex-col items-center p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-[0_0_40px_rgba(99,102,241,0.1)] overflow-hidden"
+                                >
+                                    {/* Gradient Background */}
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
-                            {/* Text */}
-                            <h3 className="relative z-10 text-lg font-bold text-white mb-1 group-hover:text-white transition-colors">
-                                {locale === 'en' ? category.name : category.nameAr}
-                            </h3>
-                            <p className="relative z-10 text-xs text-gray-400 text-center mb-3 line-clamp-1">
-                                {locale === 'en' ? category.description : category.descriptionAr}
-                            </p>
+                                    {/* Icon */}
+                                    <div className={`relative z-10 p-4 rounded-2xl bg-white/5 border border-white/10 mb-4 group-hover:scale-110 transition-transform duration-300 ${category.color || 'text-primary'}`}>
+                                        <IconComponent className="w-8 h-8" />
+                                    </div>
 
-                            {/* Product Count */}
-                            <span className="relative z-10 text-xs text-gray-500">
-                                {category.productCount} {locale === 'en' ? 'products' : 'منتج'}
-                            </span>
+                                    {/* Text */}
+                                    <h3 className="relative z-10 text-lg font-bold text-white mb-1 group-hover:text-white transition-colors">
+                                        {locale === 'en' ? category.name_en : category.name_ar}
+                                    </h3>
+                                    <p className="relative z-10 text-xs text-gray-400 text-center mb-3 line-clamp-1">
+                                        {locale === 'en' ? category.description_en : category.description_ar}
+                                    </p>
 
-                            {/* Arrow on Hover */}
-                            <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                                <ArrowRight className="w-5 h-5 text-white" />
-                            </div>
-                        </Link>
-                    </motion.div>
-                ))}
-            </div>
+                                    {/* Product Count */}
+                                    <span className="relative z-10 text-xs text-gray-500">
+                                        {category.product_count || 0} {locale === 'en' ? 'products' : 'منتج'}
+                                    </span>
+
+                                    {/* Arrow on Hover */}
+                                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                                        <ArrowRight className="w-5 h-5 text-white" />
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        );
+                    })}
+                </div>
+            )}
 
             {/* View All Link */}
             <motion.div

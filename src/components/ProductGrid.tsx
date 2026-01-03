@@ -5,8 +5,7 @@ import ProductCard from './ProductCard';
 import CategoryFilter from './CategoryFilter';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mockProducts } from '@/lib/mockData';
-import { ArrowDownAZ, ArrowUpAZ, Star, Rocket, LayoutGrid } from 'lucide-react';
+import { ArrowDownAZ, LayoutGrid, Rocket, PackageX } from 'lucide-react';
 import { Product, SortOption } from '@/lib/types';
 
 export default function ProductGrid({ locale }: { locale: string }) {
@@ -18,8 +17,6 @@ export default function ProductGrid({ locale }: { locale: string }) {
     const searchParams = useSearchParams();
     const searchTerm = searchParams.get('search')?.toLowerCase() || '';
 
-    const fallbackProducts = mockProducts;
-
     useEffect(() => {
         async function fetchProducts() {
             try {
@@ -28,18 +25,24 @@ export default function ProductGrid({ locale }: { locale: string }) {
                     .select('*')
                     .order('is_featured', { ascending: false });
 
-                if (error || !data || data.length === 0) {
-                    setProducts(fallbackProducts);
-                    setCategories(['All', ...Array.from(new Set(fallbackProducts.map(p => p.category)))]);
-                } else {
+                if (error) {
+                    console.error('Error fetching products:', error);
+                    setProducts([]);
+                    setCategories(['All']);
+                } else if (data && data.length > 0) {
                     setProducts(data);
                     // Extract unique categories
-                    const uniqueCats = Array.from(new Set(data.map((p: any) => p.category))).filter(Boolean).sort();
-                    setCategories(['All', ...uniqueCats]);
+                    const uniqueCats = Array.from(new Set(data.map((p: Product) => p.category))).filter(Boolean).sort();
+                    setCategories(['All', ...uniqueCats as string[]]);
+                } else {
+                    // No products in database - show empty state
+                    setProducts([]);
+                    setCategories(['All']);
                 }
             } catch (err) {
-                setProducts(fallbackProducts);
-                setCategories(['All', ...Array.from(new Set(fallbackProducts.map(p => p.category)))]);
+                console.error('Error:', err);
+                setProducts([]);
+                setCategories(['All']);
             }
             setLoading(false);
         }
@@ -52,15 +55,15 @@ export default function ProductGrid({ locale }: { locale: string }) {
     const filteredProducts = products.filter(p => {
         const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
         const matchesSearch = searchTerm === '' ||
-            p.title_en.toLowerCase().includes(searchTerm) ||
-            p.title_ar.toLowerCase().includes(searchTerm) ||
-            p.description_en.toLowerCase().includes(searchTerm);
+            p.title_en?.toLowerCase().includes(searchTerm) ||
+            p.title_ar?.toLowerCase().includes(searchTerm) ||
+            p.description_en?.toLowerCase().includes(searchTerm);
 
         return matchesCategory && matchesSearch;
     }).sort((a, b) => {
-        if (sortBy === 'price-asc') return (a.price || 0) - (b.price || 0); // Note: Assuming price exists or default 0
+        if (sortBy === 'price-asc') return (a.price || 0) - (b.price || 0);
         if (sortBy === 'price-desc') return (b.price || 0) - (a.price || 0);
-        if (sortBy === 'rating') return b.rating - a.rating;
+        if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
         // Default featured
         return (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0);
     });
@@ -78,6 +81,26 @@ export default function ProductGrid({ locale }: { locale: string }) {
                     <div key={i} className="h-96 rounded-3xl bg-white/5 animate-pulse border border-white/5" />
                 ))}
             </div>
+        );
+    }
+
+    // Show empty state when no products in database
+    if (products.length === 0) {
+        return (
+            <section id="products" className="w-full max-w-7xl mx-auto px-4 py-16">
+                <div className="flex flex-col items-center justify-center py-20 text-center border border-white/10 rounded-3xl bg-white/5">
+                    <PackageX className="w-16 h-16 text-gray-600 mb-6" />
+                    <h3 className="text-2xl font-bold text-white mb-3">
+                        {locale === 'en' ? 'No Products Yet' : 'لا توجد منتجات بعد'}
+                    </h3>
+                    <p className="text-gray-400 max-w-md">
+                        {locale === 'en'
+                            ? 'Products will appear here once added to the database. Run the scraper to add products.'
+                            : 'ستظهر المنتجات هنا بمجرد إضافتها إلى قاعدة البيانات. قم بتشغيل السكريبر لإضافة المنتجات.'
+                        }
+                    </p>
+                </div>
+            </section>
         );
     }
 

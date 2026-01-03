@@ -17,7 +17,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 AMAZON_TAG = os.getenv("AMAZON_PARTNER_TAG", "techdealsuae-21")
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "devstral-small-2:24b"
+OLLAMA_MODEL = "gemma3:12b"
 
 # Headers for requests
 HEADERS = {
@@ -34,6 +34,140 @@ try:
 except Exception as e:
     print(f"❌ Initialization Error: {e}")
     exit(1)
+
+
+# Category mapping for consistent product classification
+CATEGORY_MAPPING = {
+    # Electronics
+    "Electronics": "Electronics",
+    "Computers": "Electronics",
+    "Cell Phones & Accessories": "Electronics",
+    "Camera & Photo": "Electronics",
+    "Television & Video": "Electronics",
+    "Car Electronics": "Electronics",
+    "Wearable Technology": "Electronics",
+    "Headphones": "Electronics",
+    "Portable Audio & Video": "Electronics",
+    
+    # Home & Kitchen
+    "Home & Kitchen": "Home & Kitchen",
+    "Kitchen & Dining": "Home & Kitchen",
+    "Furniture": "Home & Kitchen",
+    "Bedding": "Home & Kitchen",
+    "Bath": "Home & Kitchen",
+    "Home Décor": "Home & Kitchen",
+    "Lighting & Ceiling Fans": "Home & Kitchen",
+    "Heating, Cooling & Air Quality": "Home & Kitchen",
+    
+    # Fashion
+    "Clothing, Shoes & Jewelry": "Fashion",
+    "Men's Fashion": "Fashion",
+    "Women's Fashion": "Fashion",
+    "Girls' Fashion": "Fashion",
+    "Boys' Fashion": "Fashion",
+    "Watches": "Fashion",
+    "Luggage & Travel Gear": "Fashion",
+    
+    # Beauty & Personal Care
+    "Beauty & Personal Care": "Beauty & Health",
+    "Health & Household": "Beauty & Health",
+    "Personal Care": "Beauty & Health",
+    "Skin Care": "Beauty & Health",
+    "Hair Care": "Beauty & Health",
+    
+    # Sports & Outdoors
+    "Sports & Outdoors": "Sports & Outdoors",
+    "Exercise & Fitness": "Sports & Outdoors",
+    "Outdoor Recreation": "Sports & Outdoors",
+    "Sports": "Sports & Outdoors",
+    
+    # Toys & Games
+    "Toys & Games": "Toys & Games",
+    "Games": "Toys & Games",
+    "Video Games": "Toys & Games",
+    
+    # Books & Media
+    "Books": "Books & Media",
+    "Kindle Store": "Books & Media",
+    "Movies & TV": "Books & Media",
+    "Music": "Books & Media",
+    
+    # Baby & Kids
+    "Baby": "Baby & Kids",
+    "Baby Products": "Baby & Kids",
+    "Kids' Fashion": "Baby & Kids",
+    
+    # Office & School
+    "Office Products": "Office & School",
+    "Office & School Supplies": "Office & School",
+    
+    # Automotive
+    "Automotive": "Automotive",
+    "Car & Motorbike": "Automotive",
+    
+    # Pet Supplies
+    "Pet Supplies": "Pet Supplies",
+    
+    # Tools & Home Improvement
+    "Tools & Home Improvement": "Tools & DIY",
+    "DIY & Tools": "Tools & DIY",
+    
+    # Grocery
+    "Grocery & Gourmet Food": "Grocery",
+    "Grocery": "Grocery",
+}
+
+# Subcategory keywords for better classification
+SUBCATEGORY_KEYWORDS = {
+    "Electronics": ["phone", "laptop", "computer", "tablet", "camera", "headphone", "speaker", "tv", "monitor", "keyboard", "mouse", "charger", "cable", "battery", "drone", "smartwatch", "earbuds", "gaming"],
+    "Home & Kitchen": ["kitchen", "furniture", "bedding", "curtain", "rug", "lamp", "table", "chair", "sofa", "mattress", "pillow", "cookware", "appliance", "blender", "coffee"],
+    "Fashion": ["shirt", "dress", "pants", "shoes", "jacket", "watch", "bag", "wallet", "sunglasses", "jewelry", "ring", "necklace", "bracelet"],
+    "Beauty & Health": ["skincare", "makeup", "shampoo", "cream", "lotion", "vitamin", "supplement", "toothbrush", "razor", "perfume"],
+    "Sports & Outdoors": ["fitness", "gym", "yoga", "running", "cycling", "camping", "hiking", "sports", "exercise", "weights"],
+    "Toys & Games": ["toy", "game", "puzzle", "lego", "doll", "action figure", "board game", "playstation", "xbox", "nintendo"],
+    "Books & Media": ["book", "novel", "kindle", "audiobook", "magazine"],
+    "Baby & Kids": ["baby", "infant", "toddler", "diaper", "stroller", "crib"],
+    "Automotive": ["car", "vehicle", "auto", "motor", "tire", "oil"],
+    "Pet Supplies": ["dog", "cat", "pet", "aquarium", "bird"],
+}
+
+
+def normalize_category(raw_category, product_title=""):
+    """Normalize and classify product category for consistent organization"""
+    if not raw_category:
+        raw_category = "General"
+    
+    # Clean up category string
+    raw_category = raw_category.strip()
+    
+    # Extract primary category (before any dash or subcategory)
+    primary_category = raw_category.split(" - ")[0].strip() if " - " in raw_category else raw_category
+    
+    # Try direct mapping first
+    if primary_category in CATEGORY_MAPPING:
+        return CATEGORY_MAPPING[primary_category]
+    
+    # Try partial matching
+    for key, mapped_category in CATEGORY_MAPPING.items():
+        if key.lower() in raw_category.lower() or raw_category.lower() in key.lower():
+            return mapped_category
+    
+    # Use keyword-based classification from product title
+    title_lower = product_title.lower()
+    for category, keywords in SUBCATEGORY_KEYWORDS.items():
+        for keyword in keywords:
+            if keyword in title_lower:
+                return category
+    
+    # Default category
+    return "General"
+
+
+def extract_subcategory(raw_category):
+    """Extract subcategory from Amazon breadcrumb"""
+    if " - " in raw_category:
+        return raw_category.split(" - ")[-1].strip()
+    return None
 
 
 def get_soup(url):
@@ -215,13 +349,15 @@ def extract_all_images(soup):
     return images
 
 
-def extract_reviews(soup, max_reviews=10):
-    """Extract customer reviews"""
+def extract_reviews(soup, max_reviews=20):
+    """Extract customer reviews with enhanced data"""
     reviews_data = {
         "total_reviews": 0,
         "average_rating": 0,
         "rating_breakdown": {},
-        "reviews": []
+        "reviews": [],
+        "top_positive": None,
+        "top_critical": None
     }
     
     try:
@@ -257,7 +393,7 @@ def extract_reviews(soup, max_reviews=10):
                         percent = int(percent_match.group())
                         reviews_data["rating_breakdown"][f"{stars}_star"] = percent
         
-        # Extract individual reviews
+        # Extract individual reviews (increased limit)
         review_cards = soup.find_all("div", {"data-hook": "review"})[:max_reviews]
         
         for card in review_cards:
@@ -274,6 +410,8 @@ def extract_reviews(soup, max_reviews=10):
                 if rating_text:
                     rating_match = re.search(r'([\d.]+)', rating_text.get_text())
                     review["rating"] = float(rating_match.group()) if rating_match else 5.0
+            else:
+                review["rating"] = 5.0
             
             # Title
             title_elem = card.find("a", {"data-hook": "review-title"})
@@ -301,12 +439,161 @@ def extract_reviews(soup, max_reviews=10):
             else:
                 review["helpful_count"] = 0
             
+            # Extract review images
+            review["images"] = []
+            img_container = card.find("div", {"data-hook": "review-image-tile"})
+            if img_container:
+                for img in img_container.find_all("img"):
+                    src = img.get("src", "")
+                    if src and src.startswith("http"):
+                        # Convert thumbnail to larger image
+                        full_url = re.sub(r'_SY\d+_', '_SY500_', src)
+                        review["images"].append(full_url)
+            
+            # Simple sentiment classification
+            if review.get("rating", 5) >= 4:
+                review["sentiment"] = "positive"
+            elif review.get("rating", 5) <= 2:
+                review["sentiment"] = "negative"
+            else:
+                review["sentiment"] = "neutral"
+            
             reviews_data["reviews"].append(review)
+        
+        # Extract top positive and critical reviews from Amazon's highlights
+        top_positive_div = soup.find("div", {"data-hook": "top-customer-reviews-widget"})
+        if top_positive_div:
+            positive_card = top_positive_div.find("div", class_="cr-lighthouse-section")
+            if positive_card:
+                body = positive_card.find("span", {"data-hook": "review-body"})
+                if body:
+                    reviews_data["top_positive"] = body.get_text(strip=True)[:500]
             
     except Exception as e:
         print(f"⚠️ Error extracting reviews: {e}")
     
     return reviews_data
+
+
+def extract_specifications(soup):
+    """Extract product specifications and technical details"""
+    specs = {}
+    
+    try:
+        # Method 1: Product Details section (tables)
+        detail_tables = soup.find_all("table", class_="a-keyvalue")
+        for table in detail_tables:
+            rows = table.find_all("tr")
+            for row in rows:
+                key_elem = row.find("th")
+                val_elem = row.find("td")
+                if key_elem and val_elem:
+                    key = key_elem.get_text(strip=True).rstrip(":")
+                    val = val_elem.get_text(strip=True)
+                    if key and val and len(key) < 100:
+                        specs[key] = val
+        
+        # Method 2: Technical Details section
+        tech_section = soup.find("div", id="productDetails_techSpec_section_1")
+        if tech_section:
+            rows = tech_section.find_all("tr")
+            for row in rows:
+                key_elem = row.find("th")
+                val_elem = row.find("td")
+                if key_elem and val_elem:
+                    key = key_elem.get_text(strip=True).rstrip(":")
+                    val = val_elem.get_text(strip=True)
+                    if key and val:
+                        specs[key] = val
+        
+        # Method 3: Additional Information section
+        add_info = soup.find("div", id="productDetails_detailBullets_sections1")
+        if add_info:
+            rows = add_info.find_all("tr")
+            for row in rows:
+                key_elem = row.find("th")
+                val_elem = row.find("td")
+                if key_elem and val_elem:
+                    key = key_elem.get_text(strip=True).rstrip(":")
+                    val = val_elem.get_text(strip=True)
+                    # Clean up excess whitespace
+                    val = " ".join(val.split())
+                    if key and val:
+                        specs[key] = val
+        
+        # Method 4: Detail bullets (older style)
+        detail_bullets = soup.find("div", id="detailBullets_feature_div")
+        if detail_bullets:
+            items = detail_bullets.find_all("li")
+            for item in items:
+                text = item.get_text(strip=True)
+                if ":" in text:
+                    parts = text.split(":", 1)
+                    if len(parts) == 2:
+                        key = parts[0].strip()
+                        val = parts[1].strip()
+                        if key and val and len(key) < 100:
+                            specs[key] = val
+        
+        print(f"📋 Found {len(specs)} specifications")
+        
+    except Exception as e:
+        print(f"⚠️ Error extracting specifications: {e}")
+    
+    return specs
+
+
+def extract_qa(soup, max_qa=10):
+    """Extract customer questions and answers"""
+    qa_data = []
+    
+    try:
+        # Find Q&A section
+        qa_section = soup.find("div", id="ask-btf_feature_div")
+        if not qa_section:
+            qa_section = soup.find("div", class_="askWidgetQuestions")
+        
+        if qa_section:
+            qa_cards = qa_section.find_all("div", class_="a-section")[:max_qa]
+            
+            for card in qa_cards:
+                qa = {}
+                
+                # Question
+                q_elem = card.find("span", class_="a-declarative")
+                if not q_elem:
+                    q_elem = card.find("a", class_="a-link-normal")
+                
+                if q_elem:
+                    qa["question"] = q_elem.get_text(strip=True)
+                
+                # Answer
+                a_elem = card.find("span", class_="askLongText")
+                if not a_elem:
+                    a_elem = card.find("div", class_="a-expander-content")
+                
+                if a_elem:
+                    qa["answer"] = a_elem.get_text(strip=True)[:500]
+                
+                # Answer count
+                count_elem = card.find("span", class_="a-size-small")
+                if count_elem:
+                    count_text = count_elem.get_text()
+                    count_match = re.search(r'(\d+)', count_text)
+                    qa["answer_count"] = int(count_match.group()) if count_match else 1
+                else:
+                    qa["answer_count"] = 1
+                
+                if qa.get("question"):
+                    qa_data.append(qa)
+        
+        print(f"❓ Found {len(qa_data)} Q&A pairs")
+        
+    except Exception as e:
+        print(f"⚠️ Error extracting Q&A: {e}")
+    
+    return qa_data
+
 
 
 def scrape_amazon_product_enhanced(url):
@@ -341,9 +628,15 @@ def scrape_amazon_product_enhanced(url):
         if price_data["discount_percent"]:
             print(f"   💸 Discount: {price_data['discount_percent']}% off")
         
-        # Extract Reviews
-        reviews_data = extract_reviews(soup, max_reviews=5)
+        # Extract Reviews (increased limit)
+        reviews_data = extract_reviews(soup, max_reviews=20)
         print(f"⭐ Rating: {reviews_data['average_rating']} ({reviews_data['total_reviews']} reviews)")
+        
+        # Extract Specifications
+        specifications = extract_specifications(soup)
+        
+        # Extract Q&A
+        qa_data = extract_qa(soup, max_qa=10)
         
         # Extract Features (Bullets)
         bullets = []
@@ -364,21 +657,26 @@ def scrape_amazon_product_enhanced(url):
 
         description_raw = " ".join(bullets[:7]) # Increased to 7 lines for better context
         
-        # Extract Category
-        category = "General"
+        # Extract Category with normalization
+        raw_category = "General"
+        subcategory = None
         try:
             breadcrumb_div = soup.find("div", id="wayfinding-breadcrumbs_feature_div")
             if breadcrumb_div:
                 items = breadcrumb_div.find_all("li")
                 clean_items = [i.get_text(strip=True) for i in items if len(i.get_text(strip=True)) > 1]
                 if clean_items:
-                    category = clean_items[0]
-                    # Also try to get subcategory for better classification
+                    raw_category = clean_items[0]
+                    # Get subcategory from last breadcrumb
                     if len(clean_items) > 1:
-                        # Append the last breadcrumb as a specific tag
-                        category = f"{category} - {clean_items[-1]}"
+                        subcategory = clean_items[-1]
+                        raw_category = f"{raw_category} - {subcategory}"
         except Exception as e:
             print(f"⚠️ Could not extract category: {e}")
+        
+        # Normalize category for consistent classification
+        normalized_category = normalize_category(raw_category, title)
+        print(f"📁 Category: {normalized_category} (from: {raw_category.split(' - ')[0]})")
         
         # Extract Brand
         brand = ""
@@ -400,10 +698,15 @@ def scrape_amazon_product_enhanced(url):
             "all_images": images,
             "raw_desc": description_raw,
             "affiliate_link": f"{url}?tag={AMAZON_TAG}",
-            "category": category,
+            "category": normalized_category,
+            "raw_category": raw_category,
+            "subcategory": subcategory,
             "price": price_data,
             "reviews": reviews_data,
             "rating": reviews_data["average_rating"] or 4.5,
+            "specifications": specifications,
+            "qa_data": qa_data,
+            "in_stock": True,
             "scraped_at": datetime.now().isoformat()
         }
         
@@ -413,36 +716,68 @@ def scrape_amazon_product_enhanced(url):
 
 
 def generate_ai_content(product_data):
-    """Generate AI content using Ollama"""
+    """Generate AI content using Ollama with enhanced prompting"""
     print("🤖 Generating AI Content...")
     
-    prompt = f"""
-    You are an expert tech reviewer. Analyze this product:
-    Product: {product_data['title']}
-    Brand: {product_data.get('brand', 'Unknown')}
-    Features: {product_data['raw_desc']}
-    Price: {product_data['price'].get('current_price', 'N/A')} {product_data['price'].get('currency', '')}
-    Rating: {product_data['rating']} stars ({product_data['reviews'].get('total_reviews', 0)} reviews)
+    # Build review context
+    review_context = ""
+    if product_data.get('reviews', {}).get('reviews'):
+        reviews = product_data['reviews']['reviews'][:5]
+        positive_reviews = [r for r in reviews if r.get('sentiment') == 'positive']
+        negative_reviews = [r for r in reviews if r.get('sentiment') == 'negative']
+        
+        if positive_reviews:
+            review_context += f"\nPositive feedback: {positive_reviews[0].get('title', '')}"
+        if negative_reviews:
+            review_context += f"\nCritical feedback: {negative_reviews[0].get('title', '')}"
     
-    1. Write a catchy title in English and Arabic.
-    2. Write a short "AI Verdict" summary (Why buy this?) in English and Arabic.
-    3. List 3 key Pros and 2 minor Cons in English and Arabic.
-    4. Provide numerical scores (0-100) for: Build Quality, Features, Price, Performance, Ease of Use.
-    5. Output strictly as valid JSON:
-    {{
-        "title_en": "...",
-        "title_ar": "...",
-        "desc_en": "Your Summary...\\n\\n###PROS###\\n- Pro 1...\\n\\n###CONS###\\n- Con 1...\\n\\n###SCORES###{{\\\"Build Quality\\\": 85, \\\"Features\\\": 90, \\\"Price\\\": 80, \\\"Performance\\\": 88, \\\"Ease of Use\\\": 95}}",
-        "desc_ar": "ملخص...\\n\\n###PROS###\\n- ميزة 1...\\n\\n###CONS###\\n- عيب 1...\\n\\n###SCORES###{{\\\"Build Quality\\\": 85, \\\"Features\\\": 90, \\\"Price\\\": 80, \\\"Performance\\\": 88, \\\"Ease of Use\\\": 95}}"
-    }}
-    """
+    # Build specs context
+    specs_context = ""
+    if product_data.get('specifications'):
+        specs = product_data['specifications']
+        if specs.get('technical_details'):
+            specs_list = list(specs['technical_details'].items())[:5]
+            specs_context = "\nKey Specs: " + ", ".join([f"{k}: {v}" for k, v in specs_list])
+    
+    prompt = f"""You are an expert product reviewer for an e-commerce website in UAE. Create compelling content for this product.
+
+Product: {product_data['title']}
+Brand: {product_data.get('brand', 'Unknown')}
+Category: {product_data.get('category', 'General')}
+Price: {product_data['price'].get('current_price', 'N/A')} {product_data['price'].get('currency', 'AED')}
+Original Price: {product_data['price'].get('original_price', 'N/A')} (Discount: {product_data['price'].get('discount_percent', 0)}%)
+Rating: {product_data['rating']} stars ({product_data['reviews'].get('total_reviews', 0)} reviews)
+
+Features:
+{product_data['raw_desc'][:800]}
+{specs_context}
+{review_context}
+
+Generate:
+1. A catchy marketing title in English (max 80 chars) and Arabic
+2. An AI Verdict summary (2-3 sentences explaining why to buy) in English and Arabic
+3. 3 specific Pros based on features/reviews in English and Arabic
+4. 2 honest Cons or considerations in English and Arabic  
+5. Scores (0-100) for: Build Quality, Features, Value, Performance, Ease of Use
+
+Respond ONLY with valid JSON in this exact format:
+{{
+    "title_en": "Catchy title here",
+    "title_ar": "عنوان جذاب هنا",
+    "desc_en": "AI Verdict summary here...\n\n###PROS###\n- Pro 1\n- Pro 2\n- Pro 3\n\n###CONS###\n- Con 1\n- Con 2\n\n###SCORES###{{\"Build Quality\": 85, \"Features\": 90, \"Value\": 80, \"Performance\": 88, \"Ease of Use\": 92}}",
+    "desc_ar": "ملخص الذكاء الاصطناعي...\n\n###PROS###\n- ميزة 1\n- ميزة 2\n- ميزة 3\n\n###CONS###\n- عيب 1\n- عيب 2\n\n###SCORES###{{\"Build Quality\": 85, \"Features\": 90, \"Value\": 80, \"Performance\": 88, \"Ease of Use\": 92}}"
+}}"""
     
     try:
         payload = {
             "model": OLLAMA_MODEL,
             "prompt": prompt,
             "stream": False,
-            "format": "json"
+            "format": "json",
+            "options": {
+                "temperature": 0.7,
+                "num_predict": 2000
+            }
         }
         
         response = crequests.post(OLLAMA_API_URL, json=payload, impersonate="chrome110", timeout=300)
@@ -451,25 +786,51 @@ def generate_ai_content(product_data):
             data = response.json()
             content = data.get("response", "{}")
             content = content.replace("```json", "").replace("```", "").strip()
-            return json.loads(content)
+            result = json.loads(content)
+            print("✅ AI content generated successfully")
+            return result
         else:
             print(f"❌ Ollama Error: {response.status_code}")
-            # Try to print more details from response if available
             try:
-                print(f"Detail: {response.text}")
+                print(f"Detail: {response.text[:200]}")
             except:
                 pass
             raise Exception("Ollama API failed")
             
+    except json.JSONDecodeError as e:
+        print(f"❌ AI returned invalid JSON: {e}")
+        return generate_fallback_content(product_data)
     except Exception as e:
         print(f"❌ AI Error: {e}")
-        print("💡 Tip: Make sure Ollama is running (run 'ollama serve') and the model 'devstral-small-2:24b' is pulled.")
-        return {
-            "title_en": product_data['title'],
-            "title_ar": product_data['title'],
-            "desc_en": product_data['raw_desc'],
-            "desc_ar": "وصف المنتج غير متوفر"
-        }
+        print("💡 Tip: Make sure Ollama is running ('ollama serve') and model is available.")
+        return generate_fallback_content(product_data)
+
+
+def generate_fallback_content(product_data):
+    """Generate fallback content when AI fails"""
+    title = product_data['title']
+    brand = product_data.get('brand', '')
+    category = product_data.get('category', 'Product')
+    price = product_data['price'].get('current_price', 0)
+    rating = product_data.get('rating', 4.5)
+    
+    # Create basic but useful content
+    desc_en = f"{title}\n\nThis {category.lower()} product from {brand or 'a trusted brand'} offers great value with a {rating} star rating.\n\n"
+    desc_en += "###PROS###\n- Quality product from trusted seller\n- Competitive pricing\n- Fast delivery available\n\n"
+    desc_en += "###CONS###\n- Check specifications match your needs\n- Read recent reviews for latest feedback\n\n"
+    desc_en += '###SCORES###{{"Build Quality": 80, "Features": 80, "Value": 85, "Performance": 80, "Ease of Use": 85}}'
+    
+    desc_ar = f"{title}\n\nمنتج عالي الجودة بتقييم {rating} نجوم.\n\n"
+    desc_ar += "###PROS###\n- منتج موثوق\n- سعر تنافسي\n- توصيل سريع\n\n"
+    desc_ar += "###CONS###\n- تحقق من المواصفات\n- اقرأ التقييمات\n\n"
+    desc_ar += '###SCORES###{{"Build Quality": 80, "Features": 80, "Value": 85, "Performance": 80, "Ease of Use": 85}}'
+    
+    return {
+        "title_en": title[:100],
+        "title_ar": title[:100],
+        "desc_en": desc_en,
+        "desc_ar": desc_ar
+    }
 
 
 def save_product_data(data, output_dir="scraped_data"):
@@ -524,7 +885,7 @@ def main():
             # Generate AI content
             ai_content = generate_ai_content(data)
             
-            # Prepare database record
+            # Prepare database record with all fields
             db_record = {
                 "title_en": ai_content.get('title_en', data['title']),
                 "title_ar": ai_content.get('title_ar', data['title']),
@@ -532,11 +893,24 @@ def main():
                 "description_ar": ai_content.get('desc_ar', ""),
                 "image_url": data['image_url'],
                 "affiliate_link": data['affiliate_link'],
-                "category": data.get('category', 'Tech'),
-                "rating": data['rating'],
-                "price": data['price'].get('current_price', 0),
-                "is_featured": data['rating'] >= 4.5 if data['rating'] else False
+                "category": data.get('category', 'Electronics'),
+                "rating": float(data['rating']) if data['rating'] else 4.5,
+                "price": float(data['price'].get('current_price', 0)) if data['price'].get('current_price') else 0,
+                "is_featured": data['rating'] >= 4.5 if data['rating'] else False,
+                # Enhanced fields
+                "brand": data.get('brand', '')[:100] if data.get('brand') else None,
+                "reviews_count": int(data['reviews'].get('total_reviews', 0)) if data['reviews'].get('total_reviews') else 0,
+                "original_price": float(data['price'].get('original_price')) if data['price'].get('original_price') else None,
+                "discount_percentage": int(data['price'].get('discount_percent')) if data['price'].get('discount_percent') else None,
+                "in_stock": data.get('in_stock', True),
+                "subcategory": data.get('subcategory', '')[:100] if data.get('subcategory') else None,
+                # JSONB fields - store rich data
+                "specifications": data.get('specifications') if data.get('specifications') else None,
+                "all_images": data.get('all_images') if data.get('all_images') else None,
             }
+            
+            # Remove None values to avoid database issues
+            db_record = {k: v for k, v in db_record.items() if v is not None}
             
             try:
                 print("⚡ Sending to Supabase...")
@@ -555,6 +929,44 @@ def main():
     print(f"\n{'='*60}")
     print(f"📊 Summary: {successful} successful, {failed} failed")
     print(f"{'='*60}")
+    
+    # Update site stats after scraping
+    if successful > 0:
+        update_site_stats()
+
+
+def update_site_stats():
+    """Update site_stats table with current product counts and ratings"""
+    print("\n📈 Updating site statistics...")
+    try:
+        # Get product count
+        count_response = supabase.table("products").select("id", count="exact").execute()
+        total_products = count_response.count if count_response.count else 0
+        
+        # Get average rating
+        rating_response = supabase.table("products").select("rating").execute()
+        ratings = [p['rating'] for p in rating_response.data if p.get('rating')]
+        avg_rating = round(sum(ratings) / len(ratings), 1) if ratings else 4.5
+        
+        # Update stats
+        supabase.table("site_stats").upsert({
+            "stat_key": "total_products",
+            "stat_value": str(total_products),
+            "label_en": "Products",
+            "label_ar": "منتج"
+        }, on_conflict="stat_key").execute()
+        
+        supabase.table("site_stats").upsert({
+            "stat_key": "avg_rating",
+            "stat_value": str(avg_rating),
+            "label_en": "Rating",
+            "label_ar": "التقييم"
+        }, on_conflict="stat_key").execute()
+        
+        print(f"✅ Stats updated: {total_products} products, {avg_rating} avg rating")
+        
+    except Exception as e:
+        print(f"⚠️ Could not update stats: {e}")
 
 
 if __name__ == "__main__":

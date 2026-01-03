@@ -4,31 +4,33 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
-import { mockProducts } from '@/lib/mockData';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutGrid,
     List,
-    SlidersHorizontal,
     ArrowUpDown,
     Sparkles,
     Home,
-    ChevronRight
+    ChevronRight,
+    PackageX
 } from 'lucide-react';
 import Link from 'next/link';
 import { Product } from '@/lib/types';
 
 // Category metadata for hero banners
 const categoryMeta: Record<string, { gradient: string; description: string; descriptionAr: string }> = {
-    'tech': { gradient: 'from-blue-600 to-cyan-600', description: 'Latest gadgets and electronics', descriptionAr: 'أحدث الأجهزة والإلكترونيات' },
+    'electronics': { gradient: 'from-blue-600 to-cyan-600', description: 'Latest gadgets and electronics', descriptionAr: 'أحدث الأجهزة والإلكترونيات' },
     'audio': { gradient: 'from-purple-600 to-pink-600', description: 'Premium sound experience', descriptionAr: 'تجربة صوت فاخرة' },
     'fashion': { gradient: 'from-pink-600 to-rose-600', description: 'Trending styles and accessories', descriptionAr: 'أزياء وإكسسوارات عصرية' },
-    'home': { gradient: 'from-amber-600 to-orange-600', description: 'Everything for your home', descriptionAr: 'كل ما تحتاجه لمنزلك' },
-    'kitchen': { gradient: 'from-red-600 to-orange-600', description: 'Cook like a pro', descriptionAr: 'اطبخ كالمحترفين' },
-    'smart home': { gradient: 'from-emerald-600 to-teal-600', description: 'Make your home smarter', descriptionAr: 'اجعل منزلك أذكى' },
-    'gaming': { gradient: 'from-indigo-600 to-violet-600', description: 'Level up your gaming', descriptionAr: 'ارتقِ بألعابك' },
-    'sports': { gradient: 'from-lime-600 to-green-600', description: 'Gear up for greatness', descriptionAr: 'جهز نفسك للعظمة' },
-    'tools': { gradient: 'from-yellow-600 to-amber-600', description: 'Professional tools for every job', descriptionAr: 'أدوات احترافية لكل عمل' }
+    'home-kitchen': { gradient: 'from-amber-600 to-orange-600', description: 'Everything for your home', descriptionAr: 'كل ما تحتاجه لمنزلك' },
+    'beauty-health': { gradient: 'from-rose-600 to-pink-600', description: 'Beauty and wellness products', descriptionAr: 'منتجات الجمال والعناية' },
+    'sports-outdoors': { gradient: 'from-lime-600 to-green-600', description: 'Gear up for greatness', descriptionAr: 'جهز نفسك للعظمة' },
+    'toys-games': { gradient: 'from-indigo-600 to-violet-600', description: 'Fun for all ages', descriptionAr: 'مرح لجميع الأعمار' },
+    'books-media': { gradient: 'from-teal-600 to-cyan-600', description: 'Knowledge and entertainment', descriptionAr: 'معرفة وترفيه' },
+    'baby-kids': { gradient: 'from-cyan-600 to-blue-600', description: 'Everything for little ones', descriptionAr: 'كل شيء للصغار' },
+    'automotive': { gradient: 'from-slate-600 to-gray-600', description: 'Car accessories and parts', descriptionAr: 'إكسسوارات وقطع السيارات' },
+    'pet-supplies': { gradient: 'from-orange-600 to-amber-600', description: 'For your furry friends', descriptionAr: 'لأصدقائك الفرويين' },
+    'tools-diy': { gradient: 'from-yellow-600 to-amber-600', description: 'Professional tools for every job', descriptionAr: 'أدوات احترافية لكل عمل' }
 };
 
 export default function CategoryPage({ params: { locale, slug } }: { params: { locale: string, slug: string } }) {
@@ -38,8 +40,8 @@ export default function CategoryPage({ params: { locale, slug } }: { params: { l
     const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
 
     const decodedCategory = decodeURIComponent(slug).replace(/-/g, ' ');
-    const displayTitle = decodedCategory.charAt(0).toUpperCase() + decodedCategory.slice(1);
-    const meta = categoryMeta[decodedCategory.toLowerCase()] || {
+    const displayTitle = decodedCategory.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const meta = categoryMeta[slug.toLowerCase()] || {
         gradient: 'from-primary to-secondary',
         description: 'Explore our collection',
         descriptionAr: 'استكشف مجموعتنا'
@@ -48,23 +50,22 @@ export default function CategoryPage({ params: { locale, slug } }: { params: { l
     useEffect(() => {
         async function fetchProducts() {
             try {
-                const { data, error } = await supabase
+                // Try exact match first, then partial match
+                let { data, error } = await supabase
                     .from('products')
                     .select('*')
-                    .ilike('category', decodedCategory)
+                    .ilike('category', `%${decodedCategory}%`)
                     .order('is_featured', { ascending: false });
 
-                if (error || !data || data.length === 0) {
-                    // Fallback to mock data filtered by category
-                    const filtered = mockProducts.filter(p =>
-                        p.category?.toLowerCase().includes(decodedCategory.toLowerCase())
-                    );
-                    setProducts(filtered.length > 0 ? filtered : mockProducts);
+                if (error) {
+                    console.error('Error fetching category products:', error);
+                    setProducts([]);
                 } else {
-                    setProducts(data);
+                    setProducts(data || []);
                 }
             } catch (err) {
-                setProducts(mockProducts);
+                console.error('Error:', err);
+                setProducts([]);
             }
             setLoading(false);
         }
@@ -74,7 +75,7 @@ export default function CategoryPage({ params: { locale, slug } }: { params: { l
     const sortedProducts = [...products].sort((a, b) => {
         if (sortBy === 'price-asc') return (a.price || 0) - (b.price || 0);
         if (sortBy === 'price-desc') return (b.price || 0) - (a.price || 0);
-        if (sortBy === 'rating') return b.rating - a.rating;
+        if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
         return (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0);
     });
 
@@ -182,13 +183,22 @@ export default function CategoryPage({ params: { locale, slug } }: { params: { l
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="text-center py-20 bg-white/5 rounded-3xl border border-white/10"
+                        className="flex flex-col items-center justify-center py-20 text-center bg-white/5 rounded-3xl border border-white/10"
                     >
-                        <p className="text-xl text-gray-400 mb-4">
-                            {locale === 'en' ? 'No products found in this category.' : 'لم يتم العثور على منتجات في هذه الفئة.'}
+                        <PackageX className="w-16 h-16 text-gray-600 mb-6" />
+                        <h3 className="text-2xl font-bold text-white mb-3">
+                            {locale === 'en' ? 'No Products in This Category' : 'لا توجد منتجات في هذه الفئة'}
+                        </h3>
+                        <p className="text-gray-400 mb-6">
+                            {locale === 'en'
+                                ? 'Products will appear here once added to the database.'
+                                : 'ستظهر المنتجات هنا بمجرد إضافتها.'}
                         </p>
-                        <Link href={`/${locale}`} className="text-primary hover:underline">
-                            {locale === 'en' ? 'Return to All Products' : 'العودة إلى جميع المنتجات'}
+                        <Link
+                            href={`/${locale}`}
+                            className="px-6 py-3 bg-primary text-white rounded-full font-medium hover:opacity-90 transition-opacity"
+                        >
+                            {locale === 'en' ? 'Return to Home' : 'العودة للرئيسية'}
                         </Link>
                     </motion.div>
                 ) : (
@@ -216,4 +226,3 @@ export default function CategoryPage({ params: { locale, slug } }: { params: { l
         </main>
     );
 }
-

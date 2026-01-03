@@ -1,17 +1,23 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
-import { mockProducts } from '@/lib/mockData';
-import { Star, Award, ThumbsUp, Trophy } from 'lucide-react';
-
-// Filter top rated products (4.5+ rating)
-const topRatedProducts = [...mockProducts]
-    .filter(p => p.rating >= 4.5)
-    .sort((a, b) => b.rating - a.rating);
+import { getTopRatedProducts } from '@/lib/api/products';
+import { Star, Award, ThumbsUp, Trophy, PackageX } from 'lucide-react';
+import { Product } from '@/lib/types';
 
 export default function TopRatedPage({ params: { locale } }: { params: { locale: string } }) {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getTopRatedProducts(12)
+            .then(setProducts)
+            .finally(() => setLoading(false));
+    }, []);
+
     return (
         <main className="min-h-screen relative">
             <Navbar locale={locale} />
@@ -22,32 +28,6 @@ export default function TopRatedPage({ params: { locale } }: { params: { locale:
                 animate={{ opacity: 1 }}
                 className="relative pt-24 pb-16 px-4 bg-gradient-to-r from-amber-500 via-yellow-500 to-lime-500 overflow-hidden"
             >
-                {/* Animated stars */}
-                <div className="absolute inset-0 overflow-hidden">
-                    {[...Array(25)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute text-white/20"
-                            style={{
-                                left: `${Math.random() * 100}%`,
-                                top: `${Math.random() * 100}%`,
-                            }}
-                            animate={{
-                                scale: [1, 1.5, 1],
-                                rotate: [0, 180, 360],
-                                opacity: [0.2, 0.5, 0.2],
-                            }}
-                            transition={{
-                                duration: 3 + Math.random() * 2,
-                                delay: i * 0.2,
-                                repeat: Infinity,
-                            }}
-                        >
-                            <Star className="w-6 h-6 fill-current" />
-                        </motion.div>
-                    ))}
-                </div>
-
                 <div className="relative z-10 max-w-7xl mx-auto text-center">
                     <motion.div
                         initial={{ scale: 0 }}
@@ -116,24 +96,44 @@ export default function TopRatedPage({ params: { locale } }: { params: { locale:
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {topRatedProducts.map((product, index) => (
-                        <motion.div
-                            key={product.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="relative"
-                        >
-                            {/* Rating Badge */}
-                            <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-black text-sm font-bold rounded-full shadow-lg flex items-center gap-1">
-                                <Star className="w-3 h-3 fill-current" />
-                                {product.rating}
-                            </div>
-                            <ProductCard product={product} locale={locale} />
-                        </motion.div>
-                    ))}
-                </div>
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="h-96 rounded-3xl bg-white/5 animate-pulse" />
+                        ))}
+                    </div>
+                ) : products.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-center border border-white/10 rounded-3xl bg-white/5">
+                        <PackageX className="w-16 h-16 text-gray-600 mb-6" />
+                        <h3 className="text-2xl font-bold text-white mb-3">
+                            {locale === 'en' ? 'No Top Rated Products Yet' : 'لا توجد منتجات عالية التقييم بعد'}
+                        </h3>
+                        <p className="text-gray-400">
+                            {locale === 'en'
+                                ? 'Products with 4.5+ rating will appear here.'
+                                : 'ستظهر المنتجات ذات التقييم 4.5+ هنا.'
+                            }
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {products.map((product, index) => (
+                            <motion.div
+                                key={product.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                className="relative"
+                            >
+                                <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-black text-sm font-bold rounded-full shadow-lg flex items-center gap-1">
+                                    <Star className="w-3 h-3 fill-current" />
+                                    {product.rating}
+                                </div>
+                                <ProductCard product={product} locale={locale} />
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
             </div>
         </main>
     );

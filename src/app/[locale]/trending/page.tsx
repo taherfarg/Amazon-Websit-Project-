@@ -1,17 +1,23 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
-import { mockProducts } from '@/lib/mockData';
-import { TrendingUp, Flame, Star, ArrowUp } from 'lucide-react';
-
-// Sort by rating to show "trending" products
-const trendingProducts = [...mockProducts]
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0, 9);
+import { getTrendingProducts } from '@/lib/api/products';
+import { TrendingUp, Flame, PackageX } from 'lucide-react';
+import { Product } from '@/lib/types';
 
 export default function TrendingPage({ params: { locale } }: { params: { locale: string } }) {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getTrendingProducts(12)
+            .then(setProducts)
+            .finally(() => setLoading(false));
+    }, []);
+
     return (
         <main className="min-h-screen relative">
             <Navbar locale={locale} />
@@ -22,32 +28,6 @@ export default function TrendingPage({ params: { locale } }: { params: { locale:
                 animate={{ opacity: 1 }}
                 className="relative pt-24 pb-16 px-4 bg-gradient-to-r from-purple-600 via-pink-500 to-rose-500 overflow-hidden"
             >
-                {/* Animated flames */}
-                <div className="absolute inset-0 overflow-hidden">
-                    {[...Array(15)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute text-white/10"
-                            style={{
-                                left: `${Math.random() * 100}%`,
-                                bottom: '-20px',
-                            }}
-                            animate={{
-                                y: [0, -100, -200],
-                                opacity: [0.3, 0.8, 0],
-                                scale: [1, 1.2, 0.8],
-                            }}
-                            transition={{
-                                duration: 2 + Math.random() * 2,
-                                delay: i * 0.3,
-                                repeat: Infinity,
-                            }}
-                        >
-                            <Flame className="w-8 h-8" />
-                        </motion.div>
-                    ))}
-                </div>
-
                 <div className="relative z-10 max-w-7xl mx-auto text-center">
                     <motion.div
                         initial={{ scale: 0 }}
@@ -71,35 +51,13 @@ export default function TrendingPage({ params: { locale } }: { params: { locale:
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-lg text-white/90 mb-8"
+                        className="text-lg text-white/90"
                     >
                         {locale === 'en'
                             ? 'Discover the most popular products right now'
                             : 'اكتشف المنتجات الأكثر شعبية الآن'
                         }
                     </motion.p>
-
-                    {/* Stats */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="inline-flex gap-8"
-                    >
-                        {[
-                            { value: '10K+', label: locale === 'en' ? 'Happy Customers' : 'عميل سعيد' },
-                            { value: '4.9', label: locale === 'en' ? 'Avg Rating' : 'متوسط التقييم', icon: Star },
-                            { value: '50%', label: locale === 'en' ? 'Sales Increase' : 'زيادة المبيعات', icon: ArrowUp },
-                        ].map((stat, i) => (
-                            <div key={i} className="text-center">
-                                <div className="flex items-center justify-center gap-1 text-2xl md:text-3xl font-black text-white">
-                                    {stat.value}
-                                    {stat.icon && <stat.icon className="w-5 h-5" />}
-                                </div>
-                                <div className="text-sm text-white/70">{stat.label}</div>
-                            </div>
-                        ))}
-                    </motion.div>
                 </div>
             </motion.div>
 
@@ -114,26 +72,46 @@ export default function TrendingPage({ params: { locale } }: { params: { locale:
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {trendingProducts.map((product, index) => (
-                        <motion.div
-                            key={product.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="relative"
-                        >
-                            {/* Trending Badge */}
-                            {index < 3 && (
-                                <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold rounded-full shadow-lg flex items-center gap-1">
-                                    <Flame className="w-3 h-3" />
-                                    #{index + 1} {locale === 'en' ? 'Trending' : 'رائج'}
-                                </div>
-                            )}
-                            <ProductCard product={product} locale={locale} />
-                        </motion.div>
-                    ))}
-                </div>
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="h-96 rounded-3xl bg-white/5 animate-pulse" />
+                        ))}
+                    </div>
+                ) : products.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-center border border-white/10 rounded-3xl bg-white/5">
+                        <PackageX className="w-16 h-16 text-gray-600 mb-6" />
+                        <h3 className="text-2xl font-bold text-white mb-3">
+                            {locale === 'en' ? 'No Trending Products Yet' : 'لا توجد منتجات رائجة بعد'}
+                        </h3>
+                        <p className="text-gray-400">
+                            {locale === 'en'
+                                ? 'Products will appear here once added to the database.'
+                                : 'ستظهر المنتجات هنا بمجرد إضافتها.'
+                            }
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {products.map((product, index) => (
+                            <motion.div
+                                key={product.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                className="relative"
+                            >
+                                {index < 3 && (
+                                    <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold rounded-full shadow-lg flex items-center gap-1">
+                                        <Flame className="w-3 h-3" />
+                                        #{index + 1} {locale === 'en' ? 'Trending' : 'رائج'}
+                                    </div>
+                                )}
+                                <ProductCard product={product} locale={locale} />
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
             </div>
         </main>
     );

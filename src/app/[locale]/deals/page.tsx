@@ -4,23 +4,24 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
-import { mockProducts } from '@/lib/mockData';
-import { Zap, Clock, Sparkles, Percent, ArrowRight } from 'lucide-react';
+import { getDealsProducts } from '@/lib/api/products';
+import { Zap, Clock, Sparkles, Percent, PackageX } from 'lucide-react';
 import { Product } from '@/lib/types';
 
-// Simulate deals with discount
-const dealsProducts = mockProducts.map(product => ({
-    ...product,
-    originalPrice: product.price * 1.3,
-    discount: Math.floor(Math.random() * 30) + 20 // 20-50% discount
-}));
-
 export default function DealsPage({ params: { locale } }: { params: { locale: string } }) {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
     const [timeLeft, setTimeLeft] = useState({
         hours: 23,
         minutes: 59,
         seconds: 59
     });
+
+    useEffect(() => {
+        getDealsProducts(12)
+            .then(setProducts)
+            .finally(() => setLoading(false));
+    }, []);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -32,7 +33,7 @@ export default function DealsPage({ params: { locale } }: { params: { locale: st
                 } else if (prev.hours > 0) {
                     return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
                 }
-                return { hours: 23, minutes: 59, seconds: 59 }; // Reset
+                return { hours: 23, minutes: 59, seconds: 59 };
             });
         }, 1000);
         return () => clearInterval(timer);
@@ -48,31 +49,6 @@ export default function DealsPage({ params: { locale } }: { params: { locale: st
                 animate={{ opacity: 1 }}
                 className="relative pt-24 pb-16 px-4 bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 overflow-hidden"
             >
-                {/* Animated background elements */}
-                <div className="absolute inset-0 overflow-hidden">
-                    {[...Array(20)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute text-white/10 text-6xl"
-                            style={{
-                                left: `${Math.random() * 100}%`,
-                                top: `${Math.random() * 100}%`,
-                            }}
-                            animate={{
-                                y: [0, -20, 0],
-                                rotate: [0, 10, 0],
-                            }}
-                            transition={{
-                                duration: 3,
-                                delay: i * 0.2,
-                                repeat: Infinity,
-                            }}
-                        >
-                            <Percent />
-                        </motion.div>
-                    ))}
-                </div>
-
                 <div className="relative z-10 max-w-7xl mx-auto text-center">
                     <motion.div
                         initial={{ scale: 0 }}
@@ -142,27 +118,49 @@ export default function DealsPage({ params: { locale } }: { params: { locale: st
                         <Sparkles className="w-5 h-5 text-red-400" />
                     </div>
                     <h2 className="text-2xl font-bold text-white">
-                        {locale === 'en' ? 'Today\'s Best Deals' : 'أفضل عروض اليوم'}
+                        {locale === 'en' ? "Today's Best Deals" : 'أفضل عروض اليوم'}
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {dealsProducts.map((product, index) => (
-                        <motion.div
-                            key={product.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="relative"
-                        >
-                            {/* Discount Badge */}
-                            <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-red-500 text-white text-sm font-bold rounded-full shadow-lg">
-                                -{product.discount}%
-                            </div>
-                            <ProductCard product={product} locale={locale} />
-                        </motion.div>
-                    ))}
-                </div>
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="h-96 rounded-3xl bg-white/5 animate-pulse" />
+                        ))}
+                    </div>
+                ) : products.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-center border border-white/10 rounded-3xl bg-white/5">
+                        <PackageX className="w-16 h-16 text-gray-600 mb-6" />
+                        <h3 className="text-2xl font-bold text-white mb-3">
+                            {locale === 'en' ? 'No Deals Available' : 'لا توجد عروض حالياً'}
+                        </h3>
+                        <p className="text-gray-400">
+                            {locale === 'en'
+                                ? 'Products with discounts will appear here.'
+                                : 'ستظهر المنتجات ذات الخصومات هنا.'
+                            }
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {products.map((product, index) => (
+                            <motion.div
+                                key={product.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                className="relative"
+                            >
+                                {product.discount_percentage && (
+                                    <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-red-500 text-white text-sm font-bold rounded-full shadow-lg">
+                                        -{product.discount_percentage}%
+                                    </div>
+                                )}
+                                <ProductCard product={product} locale={locale} />
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
             </div>
         </main>
     );

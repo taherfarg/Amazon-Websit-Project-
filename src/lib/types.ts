@@ -24,6 +24,12 @@ export interface Product {
     in_stock?: boolean;
     discount_percentage?: number;
     original_price?: number;
+    subcategory?: string;
+    specifications?: {
+        technical_details?: Record<string, string>;
+        additional_info?: Record<string, string>;
+    };
+    all_images?: { url: string; alt?: string; is_primary?: boolean }[];
 }
 
 // Cart Types
