@@ -818,18 +818,116 @@ def generate_fallback_content(product_data):
     desc_en = f"{title}\n\nThis {category.lower()} product from {brand or 'a trusted brand'} offers great value with a {rating} star rating.\n\n"
     desc_en += "###PROS###\n- Quality product from trusted seller\n- Competitive pricing\n- Fast delivery available\n\n"
     desc_en += "###CONS###\n- Check specifications match your needs\n- Read recent reviews for latest feedback\n\n"
-    desc_en += '###SCORES###{{"Build Quality": 80, "Features": 80, "Value": 85, "Performance": 80, "Ease of Use": 85}}'
+    desc_en += '###SCORES###{"Build Quality": 80, "Features": 80, "Value": 85, "Performance": 80, "Ease of Use": 85}'
     
     desc_ar = f"{title}\n\nمنتج عالي الجودة بتقييم {rating} نجوم.\n\n"
     desc_ar += "###PROS###\n- منتج موثوق\n- سعر تنافسي\n- توصيل سريع\n\n"
     desc_ar += "###CONS###\n- تحقق من المواصفات\n- اقرأ التقييمات\n\n"
-    desc_ar += '###SCORES###{{"Build Quality": 80, "Features": 80, "Value": 85, "Performance": 80, "Ease of Use": 85}}'
+    desc_ar += '###SCORES###{"Build Quality": 80, "Features": 80, "Value": 85, "Performance": 80, "Ease of Use": 85}'
     
     return {
         "title_en": title[:100],
         "title_ar": title[:100],
         "desc_en": desc_en,
         "desc_ar": desc_ar
+    }
+
+
+def generate_enhanced_ai_analysis(product_data):
+    """Generate comprehensive AI analysis including insights, keywords, and recommendations"""
+    print("🧠 Generating Enhanced AI Analysis...")
+    
+    rating = product_data.get('rating', 4.0)
+    reviews_count = product_data.get('reviews', {}).get('total_reviews', 0)
+    price_data = product_data.get('price', {})
+    discount = price_data.get('discount_percent', 0)
+    brand = product_data.get('brand', 'Unknown')
+    category = product_data.get('category', 'General')
+    
+    prompt = f"""You are an AI product analyst. Analyze this product:
+
+Product: {product_data['title'][:200]}
+Brand: {brand}
+Category: {category}
+Rating: {rating} stars ({reviews_count} reviews)
+Price: {price_data.get('current_price', 'N/A')} AED (Discount: {discount}%)
+
+Generate JSON with:
+- recommendation_score: 0-100
+- recommendation_level: "highly_recommended"/"recommended"/"consider"/"research_more"
+- insights: array of objects with type, title, text
+- review_highlights: array with quote and keyword
+- keywords: array of positive keywords
+- price_insight: "lowest_price"/"good_deal"/"fair_price"/"wait_for_drop"
+
+Respond ONLY with valid JSON."""
+    
+    try:
+        payload = {
+            "model": OLLAMA_MODEL,
+            "prompt": prompt,
+            "stream": False,
+            "format": "json",
+            "options": {"temperature": 0.6, "num_predict": 1200}
+        }
+        
+        response = crequests.post(OLLAMA_API_URL, json=payload, impersonate="chrome110", timeout=180)
+        
+        if response.status_code == 200:
+            data = response.json()
+            content = data.get("response", "{}").replace("```json", "").replace("```", "").strip()
+            result = json.loads(content)
+            print("✅ Enhanced AI analysis generated")
+            return result
+        else:
+            raise Exception(f"Ollama Error: {response.status_code}")
+            
+    except Exception as e:
+        print(f"❌ AI Analysis Error: {e}")
+        return generate_fallback_analysis(product_data)
+
+
+def generate_fallback_analysis(product_data):
+    """Generate fallback AI analysis when LLM fails"""
+    rating = product_data.get('rating', 4.0)
+    discount = product_data.get('price', {}).get('discount_percent', 0)
+    brand = product_data.get('brand', 'Brand')
+    reviews_count = product_data.get('reviews', {}).get('total_reviews', 0)
+    
+    # Calculate recommendation score
+    score = 70
+    if rating >= 4.5: score += 15
+    elif rating >= 4.0: score += 10
+    if reviews_count >= 500: score += 5
+    if discount >= 15: score += 5
+    score = min(100, score)
+    
+    # Determine level
+    if score >= 85: level = "highly_recommended"
+    elif score >= 70: level = "recommended"
+    elif score >= 50: level = "consider"
+    else: level = "research_more"
+    
+    # Generate insights
+    insights = []
+    if rating >= 4.5:
+        insights.append({"type": "positive", "title": "Highly Rated", "text": f"Top rated with {rating} stars"})
+    if discount >= 20:
+        insights.append({"type": "positive", "title": "Great Deal", "text": f"{discount}% discount"})
+    if reviews_count >= 1000:
+        insights.append({"type": "positive", "title": "Verified Choice", "text": f"{reviews_count}+ reviews"})
+    if brand and brand != 'Unknown':
+        insights.append({"type": "neutral", "title": "Trusted Brand", "text": f"Official {brand} product"})
+    
+    price_insight = "lowest_price" if discount >= 25 else "good_deal" if discount >= 15 else "fair_price"
+    
+    return {
+        "recommendation_score": score,
+        "recommendation_level": level,
+        "insights": insights[:4],
+        "review_highlights": [{"quote": "Quality product", "keyword": "quality"}],
+        "keywords": ["Quality", "Value", "Reliable"],
+        "price_insight": price_insight
     }
 
 
@@ -882,8 +980,11 @@ def main():
             # Save raw data locally
             save_product_data(data)
             
-            # Generate AI content
+            # Generate AI content (titles, descriptions, pros/cons)
             ai_content = generate_ai_content(data)
+            
+            # Generate enhanced AI analysis (insights, recommendations, keywords)
+            ai_analysis = generate_enhanced_ai_analysis(data)
             
             # Prepare database record with all fields
             db_record = {
@@ -907,6 +1008,14 @@ def main():
                 # JSONB fields - store rich data
                 "specifications": data.get('specifications') if data.get('specifications') else None,
                 "all_images": data.get('all_images') if data.get('all_images') else None,
+                # AI Analysis fields (new)
+                "ai_recommendation_score": ai_analysis.get('recommendation_score'),
+                "ai_recommendation_level": ai_analysis.get('recommendation_level'),
+                "ai_insights": ai_analysis.get('insights'),
+                "ai_review_highlights": ai_analysis.get('review_highlights'),
+                "ai_keywords": ai_analysis.get('keywords'),
+                "ai_price_insight": ai_analysis.get('price_insight'),
+                "ai_generated_at": datetime.now().isoformat(),
             }
             
             # Remove None values to avoid database issues
@@ -916,6 +1025,7 @@ def main():
                 print("⚡ Sending to Supabase...")
                 response = supabase.table("products").insert(db_record).execute()
                 print(f"✅ Saved: {db_record['title_en'][:50]}...")
+                print(f"   📊 AI Score: {ai_analysis.get('recommendation_score', 'N/A')}/100 - {ai_analysis.get('recommendation_level', 'N/A')}")
                 successful += 1
             except Exception as e:
                 print(f"❌ Database Error: {e}")

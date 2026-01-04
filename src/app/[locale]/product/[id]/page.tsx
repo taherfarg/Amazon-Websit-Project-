@@ -12,6 +12,11 @@ import ProductImageGallery from '@/components/ProductImageGallery';
 import ProductHighlights from '@/components/ProductHighlights';
 import ProductActions from '@/components/ProductActions';
 import Navbar from '@/components/Navbar';
+import SimilarProducts from '@/components/SimilarProducts';
+import FrequentlyBoughtTogether from '@/components/FrequentlyBoughtTogether';
+import AIInsights from '@/components/AIInsights';
+import PriceTracker from '@/components/PriceTracker';
+import CustomerVoice from '@/components/CustomerVoice';
 
 export async function generateMetadata({ params }: { params: { id: string, locale: string } }): Promise<Metadata> {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ai-smartchoice.com';
@@ -275,15 +280,28 @@ export default async function ProductPage({ params: { id, locale } }: { params: 
                             discount={product.discount_percentage}
                             locale={locale}
                         />
-                        <RatingBreakdown
-                            rating={product.rating}
+                        <PriceTracker
+                            currentPrice={product.price || 0}
+                            originalPrice={product.original_price}
+                            discountPercentage={product.discount_percentage}
+                            locale={locale}
+                        />
+                        <CustomerVoice
+                            rating={product.rating || 0}
                             reviewsCount={product.reviews_count || 0}
                             locale={locale}
                         />
-                        {overallScore > 0 && (
-                            <OverallScoreGauge score={overallScore} locale={locale} />
-                        )}
                     </section>
+
+                    {/* AI SmartChoice Analysis Section */}
+                    <AIInsights
+                        product={productData}
+                        summary={summary}
+                        pros={pros}
+                        cons={cons}
+                        overallScore={overallScore}
+                        locale={locale}
+                    />
 
                     {/* Specifications Section */}
                     {product.specifications && (
@@ -318,6 +336,16 @@ export default async function ProductPage({ params: { id, locale } }: { params: 
                             </div>
                         </section>
                     )}
+
+                    {/* Frequently Bought Together */}
+                    <FrequentlyBoughtTogether currentProduct={product} locale={locale} />
+
+                    {/* Similar Products */}
+                    <SimilarProducts
+                        currentProductId={product.id}
+                        category={product.category}
+                        locale={locale}
+                    />
 
                 </div>
             </article>

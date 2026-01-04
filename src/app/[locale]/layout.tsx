@@ -8,6 +8,8 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { CompareProvider } from '@/context/CompareContext';
 import { RecentlyViewedProvider } from '@/context/RecentlyViewedContext';
 import { ToastProvider } from '@/context/ToastContext';
+import { CartProvider } from '@/context/CartContext';
+import { PriceAlertProvider } from '@/context/PriceAlertContext';
 import Chatbot from '@/components/Chatbot';
 import BackToTop from '@/components/BackToTop';
 import CompareDrawer from '@/components/CompareDrawer';
@@ -100,18 +102,22 @@ export default async function LocaleLayout({
                 <ThemeProvider>
                     <NextIntlClientProvider messages={messages}>
                         <ToastProvider>
-                            <WishlistProvider>
-                                <CompareProvider>
-                                    <RecentlyViewedProvider>
-                                        {children}
-                                        <Footer locale={locale} />
-                                        <Chatbot />
-                                        <BackToTop />
-                                        <CompareDrawer locale={locale} />
-                                        <ToastContainer />
-                                    </RecentlyViewedProvider>
-                                </CompareProvider>
-                            </WishlistProvider>
+                            <CartProvider>
+                                <PriceAlertProvider>
+                                    <WishlistProvider>
+                                        <CompareProvider>
+                                            <RecentlyViewedProvider>
+                                                {children}
+                                                <Footer locale={locale} />
+                                                <Chatbot />
+                                                <BackToTop />
+                                                <CompareDrawer locale={locale} />
+                                                <ToastContainer />
+                                            </RecentlyViewedProvider>
+                                        </CompareProvider>
+                                    </WishlistProvider>
+                                </PriceAlertProvider>
+                            </CartProvider>
                         </ToastProvider>
                     </NextIntlClientProvider>
                 </ThemeProvider>
