@@ -147,7 +147,7 @@ if __name__ == "__main__":
                 failed_count += 1
                 continue
             
-            # Upload to Supabase
+            # Upload to Supabase (disabled per user request)
             upload_data = {
                 "title_en": ai_content["title_en"][:200],
                 "title_ar": ai_content["title_ar"][:200],
@@ -158,7 +158,6 @@ if __name__ == "__main__":
                 "discount_percentage": product_data['price'].get('discount_percent'),
                 "currency": product_data['price'].get('currency', 'AED'),
                 "image_url": product_data.get('image_url', ''),
-                # "gallery": json.dumps([img['url'] for img in product_data.get('all_images', [])[:10]]),  # Removed - column doesn't exist
                 "category": product_data.get('category', 'General'),
                 "brand": product_data.get('brand', ''),
                 "asin": product_data.get('asin', ''),
@@ -166,10 +165,13 @@ if __name__ == "__main__":
                 "rating": product_data.get('rating', 4.5),
                 "total_reviews": product_data['reviews'].get('total_reviews', 0),
                 "in_stock": product_data.get('in_stock', True),
-                "is_featured": product_data.get('rating', 0) >= 4.5,
-                # "specifications": json.dumps(product_data.get('specifications', {})),  # Optional - remove if this column doesn't exist either
-                "scraped_at": datetime.now().isoformat()
+                "is_featured": product_data.get('rating', 0) >= 4.5
             }
+            # Skipping actual DB insert as per user request
+            print("✅ Skipping database upload (user requested no DB update).")
+            processed_count += 1
+            # Small delay to avoid overwhelming the server
+            time.sleep(2)
             
             result = supabase.table("products").insert(upload_data).execute()
             product_id = result.data[0]['id'] if result.data else None
