@@ -8,6 +8,7 @@ from curl_cffi import requests as crequests
 from bs4 import BeautifulSoup
 from supabase import create_client, Client
 from datetime import datetime
+from enhanced_ai_generator import EnhancedAIGenerator
 
 # Load environment variables from .env file
 load_dotenv()
@@ -17,7 +18,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 AMAZON_TAG = os.getenv("AMAZON_PARTNER_TAG", "techdealsuae-21")
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "gemma3:12b"
+OLLAMA_MODEL = "devstral-small-2:24b"  # Updated to use the working model
 
 # Headers for requests
 HEADERS = {

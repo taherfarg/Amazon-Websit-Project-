@@ -7,6 +7,7 @@ import FeaturedBanners from '@/components/FeaturedBanners';
 import Newsletter from '@/components/Newsletter';
 import FlashDeals from '@/components/FlashDeals';
 import DailyPicks from '@/components/DailyPicks';
+import TestimonialsSection from '@/components/TestimonialsSection';
 
 export default function Home({ params: { locale } }: { params: { locale: string } }) {
     return (
@@ -18,6 +19,7 @@ export default function Home({ params: { locale } }: { params: { locale: string 
             <DailyPicks locale={locale} />
             <CategoryShowcase locale={locale} />
             <ProductGrid locale={locale} />
+            <TestimonialsSection locale={locale} />
             <RecentlyViewed locale={locale} />
             <Newsletter locale={locale} />
         </main>
