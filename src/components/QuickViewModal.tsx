@@ -1,11 +1,12 @@
 'use client';
 
-import { X, Star, ExternalLink, Heart, GitCompare } from 'lucide-react';
+import { X, Star, ExternalLink, Heart, GitCompare, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Product } from '@/lib/types';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCompare } from '@/context/CompareContext';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface QuickViewModalProps {
     product: Product | null;
@@ -39,7 +40,8 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
     const isWishlisted = isInWishlist(product.id);
     const isComparing = isInCompare(product.id);
 
-    const handleWishlistToggle = () => {
+    const handleWishlistToggle = (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (isWishlisted) {
             removeFromWishlist(product.id);
         } else {
@@ -47,7 +49,8 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
         }
     };
 
-    const handleCompareToggle = () => {
+    const handleCompareToggle = (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (!isComparing) {
             addToCompare(product);
         }
@@ -56,14 +59,14 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
     return (
         <AnimatePresence>
             {isOpen && (
-                <>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+                        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
                     />
 
                     {/* Modal */}
@@ -71,7 +74,9 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-4xl md:max-h-[85vh] bg-zinc-900 border border-white/10 rounded-3xl overflow-hidden z-50 flex flex-col"
+                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl max-h-[90vh] bg-zinc-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
                     >
                         {/* Close button */}
                         <button
@@ -81,9 +86,9 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
                             <X className="w-5 h-5 text-white" />
                         </button>
 
-                        <div className="flex flex-col md:flex-row h-full overflow-auto">
+                        <div className="flex flex-col md:flex-row max-h-[90vh] overflow-auto">
                             {/* Image */}
-                            <div className="md:w-1/2 p-6 md:p-8 bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center min-h-[300px] md:min-h-0">
+                            <div className="md:w-1/2 p-6 md:p-8 bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center min-h-[250px] md:min-h-[400px]">
                                 <div className="relative w-full max-w-[280px] md:max-w-[320px] aspect-square">
                                     <Image
                                         src={product.image_url}
@@ -106,69 +111,111 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
                                     <div className="flex items-center gap-1 text-amber-400">
                                         <Star className="w-4 h-4 fill-amber-400" />
                                         <span className="text-sm font-bold">{product.rating}</span>
+                                        {product.reviews_count && (
+                                            <span className="text-xs text-gray-500">({product.reviews_count})</span>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Title */}
-                                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+                                <h2 className="text-xl md:text-2xl font-bold text-white mb-3 leading-tight line-clamp-2">
                                     {title}
                                 </h2>
 
+                                {/* AI Score Badge */}
+                                {product.ai_recommendation_score && (
+                                    <div className="mb-4 flex items-center gap-2">
+                                        <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/20 border border-purple-500/30 rounded-full">
+                                            <span className="text-xs text-purple-400 font-medium">
+                                                AI Score: {product.ai_recommendation_score}%
+                                            </span>
+                                            <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                                <div 
+                                                    className="h-full bg-purple-500 rounded-full"
+                                                    style={{ width: `${product.ai_recommendation_score}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Description */}
-                                <p className="text-gray-400 leading-relaxed mb-6 flex-grow line-clamp-4 md:line-clamp-6">
+                                <p className="text-gray-400 text-sm leading-relaxed mb-4 flex-grow line-clamp-3 md:line-clamp-4">
                                     {description || (locale === 'en' ? 'No description available.' : 'لا يوجد وصف متاح.')}
                                 </p>
 
                                 {/* Price */}
-                                <div className="mb-6">
-                                    <span className="text-sm text-gray-500 block mb-1">
+                                <div className="mb-5">
+                                    <span className="text-xs text-gray-500 block mb-1">
                                         {locale === 'en' ? 'Best Price' : 'أفضل سعر'}
                                     </span>
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-4xl font-bold text-white">
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-3xl md:text-4xl font-bold text-white">
                                             {product.price?.toFixed(2) || 'N/A'}
                                         </span>
-                                        <span className="text-2xl text-gray-400">{locale === 'en' ? 'AED' : 'د.إ'}</span>
+                                        <span className="text-xl text-gray-400">{locale === 'en' ? 'AED' : 'د.إ'}</span>
+                                        {product.discount_percentage && product.discount_percentage > 0 && (
+                                            <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs font-bold rounded-full">
+                                                -{product.discount_percentage}%
+                                            </span>
+                                        )}
                                     </div>
+                                    {product.original_price && product.original_price > (product.price || 0) && (
+                                        <span className="text-sm text-gray-500 line-through">
+                                            {product.original_price.toFixed(2)} {locale === 'en' ? 'AED' : 'د.إ'}
+                                        </span>
+                                    )}
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex flex-wrap gap-3">
-                                    <a
-                                        href={product.affiliate_link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-100 transition-all btn-shine"
-                                    >
-                                        {locale === 'en' ? 'Buy on Amazon' : 'اشتري من أمازون'}
-                                        <ExternalLink className="w-4 h-4" />
-                                    </a>
+                                <div className="space-y-3">
+                                    <div className="flex gap-3">
+                                        <a
+                                            href={product.affiliate_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-100 transition-all"
+                                        >
+                                            {locale === 'en' ? 'Buy on Amazon' : 'اشتري من أمازون'}
+                                            <ExternalLink className="w-4 h-4" />
+                                        </a>
 
-                                    <button
-                                        onClick={handleWishlistToggle}
-                                        className={`p-3 rounded-xl border transition-all ${isWishlisted
-                                            ? 'bg-red-500/20 border-red-500/50 text-red-400'
-                                            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
-                                            }`}
-                                    >
-                                        <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
-                                    </button>
+                                        <button
+                                            onClick={handleWishlistToggle}
+                                            className={`p-3 rounded-xl border transition-all ${isWishlisted
+                                                ? 'bg-red-500/20 border-red-500/50 text-red-400'
+                                                : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                                                }`}
+                                        >
+                                            <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+                                        </button>
 
-                                    <button
-                                        onClick={handleCompareToggle}
-                                        disabled={isComparing}
-                                        className={`p-3 rounded-xl border transition-all ${isComparing
-                                            ? 'bg-primary/20 border-primary/50 text-primary'
-                                            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
-                                            }`}
+                                        <button
+                                            onClick={handleCompareToggle}
+                                            disabled={isComparing}
+                                            className={`p-3 rounded-xl border transition-all ${isComparing
+                                                ? 'bg-primary/20 border-primary/50 text-primary'
+                                                : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                                                }`}
+                                        >
+                                            <GitCompare className="w-5 h-5" />
+                                        </button>
+                                    </div>
+
+                                    {/* View Details Link */}
+                                    <Link
+                                        href={`/${locale}/product/${product.id}`}
+                                        onClick={onClose}
+                                        className="w-full flex items-center justify-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 text-white font-medium rounded-xl hover:bg-white/10 transition-all"
                                     >
-                                        <GitCompare className="w-5 h-5" />
-                                    </button>
+                                        <Eye className="w-4 h-4" />
+                                        {locale === 'en' ? 'View Full Details' : 'عرض التفاصيل الكاملة'}
+                                    </Link>
                                 </div>
                             </div>
                         </div>
                     </motion.div>
-                </>
+                </div>
             )}
         </AnimatePresence>
     );
