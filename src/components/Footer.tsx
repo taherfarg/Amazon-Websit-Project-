@@ -1,7 +1,8 @@
 'use client';
 
-import { Sparkles, Github, Twitter, Mail } from 'lucide-react';
+import { Github, Twitter, Mail } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Newsletter from './Newsletter';
 
 interface FooterProps {
@@ -31,12 +32,13 @@ export default function Footer({ locale }: FooterProps) {
                     {/* Brand */}
                     <div className="lg:col-span-1">
                         <Link href={`/${locale}`} className="flex items-center gap-2 mb-4">
-                            <div className="p-2 bg-gradient-to-tr from-primary to-secondary rounded-lg">
-                                <Sparkles className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                                AI SmartChoice
-                            </span>
+                            <Image
+                                src="/logo.png"
+                                alt="AI SmartChoice"
+                                width={160}
+                                height={45}
+                                className="h-10 w-auto object-contain"
+                            />
                         </Link>
                         <p className="text-sm text-gray-400 leading-relaxed">
                             {locale === 'en'

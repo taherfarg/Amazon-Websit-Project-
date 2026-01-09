@@ -96,8 +96,8 @@ export default async function LocaleLayout({
                 <meta name="theme-color" content="#6366f1" />
                 <meta name="apple-mobile-web-app-capable" content="yes" />
                 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-                <link rel="icon" href="/favicon.ico" sizes="any" />
-                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                <link rel="icon" href="/logo.png" sizes="any" type="image/png" />
+                <link rel="apple-touch-icon" href="/logo.png" />
                 <link rel="manifest" href="/manifest.json" />
                 <meta name="mobile-web-app-capable" content="yes" />
                 <meta name="application-name" content="AI SmartChoice" />

@@ -3,9 +3,10 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { 
-    Sparkles, Search, Heart, GitCompare, Menu, X, ChevronDown,
-    Flame, Star, TrendingUp, LayoutGrid, Tag, Home
+    Search, Heart, GitCompare, Menu, X, ChevronDown,
+    Star, TrendingUp, LayoutGrid, Tag, Home, Info
 } from 'lucide-react';
+import Image from 'next/image';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { useWishlist } from '@/context/WishlistContext';
@@ -99,12 +100,14 @@ export default function Navbar({ locale }: { locale: string }) {
             >
                 {/* Logo */}
                 <Link href={`/${locale}`} className="flex items-center gap-2 group shrink-0">
-                    <div className="p-1.5 md:p-2 bg-gradient-to-tr from-primary to-secondary rounded-lg">
-                        <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                    </div>
-                    <span className="hidden sm:inline text-lg md:text-xl lg:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                        {t('title')}
-                    </span>
+                    <Image
+                        src="/logo.png"
+                        alt="AI SmartChoice"
+                        width={140}
+                        height={40}
+                        className="h-8 md:h-10 w-auto object-contain"
+                        priority
+                    />
                 </Link>
 
                 {/* Desktop Navigation Links */}
@@ -342,7 +345,7 @@ export default function Navbar({ locale }: { locale: string }) {
                                     onClick={() => setMobileMenuOpen(false)}
                                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-base text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
                                 >
-                                    <Sparkles className="w-5 h-5" />
+                                    <Info className="w-5 h-5" />
                                     {t('how_it_works')}
                                 </Link>
                             </div>
