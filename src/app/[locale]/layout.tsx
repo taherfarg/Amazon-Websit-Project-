@@ -14,6 +14,7 @@ import Chatbot from '@/components/Chatbot';
 import BackToTop from '@/components/BackToTop';
 import CompareDrawer from '@/components/CompareDrawer';
 import ToastContainer from '@/components/ToastContainer';
+import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 
 const inter = Inter({ subsets: ['latin'] });
 const arabic = Noto_Kufi_Arabic({ subsets: ['arabic'] });
@@ -97,6 +98,10 @@ export default async function LocaleLayout({
                 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
                 <link rel="icon" href="/favicon.ico" sizes="any" />
                 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                <link rel="manifest" href="/manifest.json" />
+                <meta name="mobile-web-app-capable" content="yes" />
+                <meta name="application-name" content="AI SmartChoice" />
+                <meta name="msapplication-TileColor" content="#6366f1" />
             </head>
             <body className={locale === 'ar' ? arabic.className : inter.className} suppressHydrationWarning>
                 <ThemeProvider>
@@ -113,6 +118,7 @@ export default async function LocaleLayout({
                                                 <BackToTop />
                                                 <CompareDrawer locale={locale} />
                                                 <ToastContainer />
+                                                <ServiceWorkerRegistration />
                                             </RecentlyViewedProvider>
                                         </CompareProvider>
                                     </WishlistProvider>

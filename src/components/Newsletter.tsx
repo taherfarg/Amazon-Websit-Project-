@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, CheckCircle, Loader2 } from 'lucide-react';
+import { Mail, CheckCircle, Loader2, Bell, Tag, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { subscribeToNewsletter } from '@/lib/api/newsletter';
 
 interface NewsletterProps {
     locale: string;
@@ -28,27 +29,31 @@ export default function Newsletter({ locale }: NewsletterProps) {
 
         setStatus('loading');
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Call actual API
+        const result = await subscribeToNewsletter(email, locale, 'footer');
 
-        setStatus('success');
-        setEmail('');
-
-        // Reset after 3 seconds
-        setTimeout(() => {
-            setStatus('idle');
-        }, 3000);
+        if (result.success) {
+            setStatus('success');
+            setEmail('');
+            // Reset after 5 seconds
+            setTimeout(() => {
+                setStatus('idle');
+            }, 5000);
+        } else {
+            setStatus('error');
+            setErrorMessage(result.message);
+        }
     };
 
     return (
-        <div className="w-full max-w-md">
-            <div className="flex items-center gap-2 mb-3">
+        <div className="w-full max-w-md mx-auto text-center">
+            <div className="flex items-center justify-center gap-2 mb-3">
                 <Mail className="w-5 h-5 text-primary" />
                 <h3 className="font-bold text-white">
                     {locale === 'en' ? 'Get Deal Alerts' : 'احصل على تنبيهات العروض'}
                 </h3>
             </div>
-            <p className="text-sm text-gray-400 mb-4">
+            <p className="text-sm text-gray-400 mb-4 text-center">
                 {locale === 'en'
                     ? 'Subscribe to receive the best AI-picked deals in your inbox.'
                     : 'اشترك لتلقي أفضل العروض المختارة بالذكاء الاصطناعي في بريدك.'}

@@ -14,6 +14,19 @@ interface QuickViewModalProps {
     locale: string;
 }
 
+// Clean markdown from text (remove *, #, etc.)
+function cleanMarkdown(text: string | null | undefined): string {
+    if (!text) return '';
+    return text
+        .replace(/\*\*/g, '') // Remove bold **
+        .replace(/\*/g, '')   // Remove italic *
+        .replace(/#{1,6}\s?/g, '') // Remove headers
+        .replace(/`/g, '')    // Remove code backticks
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Convert links to text
+        .replace(/\n{3,}/g, '\n\n') // Reduce multiple newlines
+        .trim();
+}
+
 export default function QuickViewModal({ product, isOpen, onClose, locale }: QuickViewModalProps) {
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
     const { addToCompare, isInCompare } = useCompare();
@@ -21,7 +34,8 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
     if (!product) return null;
 
     const title = locale === 'en' ? product.title_en : product.title_ar;
-    const description = locale === 'en' ? product.description_en : product.description_ar;
+    const rawDescription = locale === 'en' ? product.description_en : product.description_ar;
+    const description = cleanMarkdown(rawDescription);
     const isWishlisted = isInWishlist(product.id);
     const isComparing = isInCompare(product.id);
 
@@ -69,14 +83,15 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
 
                         <div className="flex flex-col md:flex-row h-full overflow-auto">
                             {/* Image */}
-                            <div className="md:w-1/2 p-8 bg-white/5 flex items-center justify-center">
-                                <div className="relative w-full aspect-square max-w-md">
+                            <div className="md:w-1/2 p-6 md:p-8 bg-gradient-to-br from-white/5 to-transparent flex items-center justify-center min-h-[300px] md:min-h-0">
+                                <div className="relative w-full max-w-[280px] md:max-w-[320px] aspect-square">
                                     <Image
                                         src={product.image_url}
                                         alt={title}
                                         fill
-                                        className="object-contain"
-                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                        className="object-contain drop-shadow-2xl"
+                                        sizes="(max-width: 768px) 280px, 320px"
+                                        priority
                                     />
                                 </div>
                             </div>
@@ -100,8 +115,8 @@ export default function QuickViewModal({ product, isOpen, onClose, locale }: Qui
                                 </h2>
 
                                 {/* Description */}
-                                <p className="text-gray-400 leading-relaxed mb-6 flex-grow">
-                                    {description}
+                                <p className="text-gray-400 leading-relaxed mb-6 flex-grow line-clamp-4 md:line-clamp-6">
+                                    {description || (locale === 'en' ? 'No description available.' : 'لا يوجد وصف متاح.')}
                                 </p>
 
                                 {/* Price */}
