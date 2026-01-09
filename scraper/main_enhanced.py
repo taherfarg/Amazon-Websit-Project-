@@ -147,7 +147,7 @@ if __name__ == "__main__":
                 failed_count += 1
                 continue
             
-            # Upload to Supabase (disabled per user request)
+            # Upload to Supabase
             upload_data = {
                 "title_en": ai_content["title_en"][:200],
                 "title_ar": ai_content["title_ar"][:200],
@@ -167,11 +167,6 @@ if __name__ == "__main__":
                 "in_stock": product_data.get('in_stock', True),
                 "is_featured": product_data.get('rating', 0) >= 4.5
             }
-            # Skipping actual DB insert as per user request
-            print("✅ Skipping database upload (user requested no DB update).")
-            processed_count += 1
-            # Small delay to avoid overwhelming the server
-            time.sleep(2)
             
             result = supabase.table("products").insert(upload_data).execute()
             product_id = result.data[0]['id'] if result.data else None
