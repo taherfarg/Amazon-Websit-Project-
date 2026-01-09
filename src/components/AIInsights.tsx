@@ -18,6 +18,14 @@ import {
     Info
 } from 'lucide-react';
 import { Product } from '@/lib/types';
+import MarkdownRenderer from './MarkdownRenderer';
+
+// Helper function to strip markdown formatting from text
+const stripMarkdown = (text: string): string => {
+    if (!text) return '';
+    // Remove **bold** formatting, keeping the text inside
+    return text.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
+};
 
 interface AIInsightsProps {
     product: Product;
@@ -312,9 +320,7 @@ export default function AIInsights({ product, summary, pros, cons, overallScore,
                                                 {isEn ? 'AI Verdict' : 'حكم الذكاء الاصطناعي'}
                                             </span>
                                         </div>
-                                        <p className="text-gray-300 text-sm leading-relaxed">
-                                            {summary || (isEn ? 'Our AI is analyzing this product...' : 'يقوم الذكاء الاصطناعي بتحليل هذا المنتج...')}
-                                        </p>
+                                            <MarkdownRenderer content={summary || (isEn ? 'Our AI is analyzing this product...' : 'يقوم الذكاء الاصطناعي بتحليل هذا المنتج...')} />
                                     </div>
 
                                     {/* Insights Grid */}
@@ -372,7 +378,7 @@ export default function AIInsights({ product, summary, pros, cons, overallScore,
                                             className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/20 rounded-xl"
                                         >
                                             <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                                            <span className="text-gray-300 text-sm">{pro}</span>
+                                            <span className="text-gray-300 text-sm">{stripMarkdown(pro)}</span>
                                         </motion.div>
                                     )) : (
                                         <div className="text-center py-8 text-gray-500">
@@ -398,7 +404,7 @@ export default function AIInsights({ product, summary, pros, cons, overallScore,
                                             className="flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl"
                                         >
                                             <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                                            <span className="text-gray-300 text-sm">{con}</span>
+                                            <span className="text-gray-300 text-sm">{stripMarkdown(con)}</span>
                                         </motion.div>
                                     )) : (
                                         <div className="text-center py-8 text-gray-500">

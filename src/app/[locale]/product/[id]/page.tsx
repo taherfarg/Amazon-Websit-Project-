@@ -17,6 +17,7 @@ import FrequentlyBoughtTogether from '@/components/FrequentlyBoughtTogether';
 import AIInsights from '@/components/AIInsights';
 import PriceTracker from '@/components/PriceTracker';
 import CustomerVoice from '@/components/CustomerVoice';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
 
 export async function generateMetadata({ params }: { params: { id: string, locale: string } }): Promise<Metadata> {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ai-smartchoice.com';
@@ -99,44 +100,57 @@ export default async function ProductPage({ params: { id, locale } }: { params: 
     let scores: { subject: string; A: number; fullMark: number }[] = [];
     let overallScore = 0;
 
-    if (fullDescription && fullDescription.includes('###SCORES###')) {
-        const descParts = fullDescription.split('###PROS###');
-        summary = descParts[0].trim();
+    if (fullDescription) {
+        // defined regex patterns for sections
+        const prosPattern = /###PROS###\s*([\s\S]*?)(?=###CONS###|$)/i;
+        const consPattern = /###CONS###\s*([\s\S]*?)(?=###SCORES###|$)/i;
+        const scoresPattern = /###SCORES###\s*([\s\S]*?)$/i;
 
-        const metadataPart = descParts[1] || "";
+        // Extract parts
+        const prosMatch = fullDescription.match(prosPattern);
+        const consMatch = fullDescription.match(consPattern);
+        const scoresMatch = fullDescription.match(scoresPattern);
 
-        if (metadataPart) {
-            const prosSplit = metadataPart.split('###CONS###');
-            pros = prosSplit[0].split('\n').map((l: string) => l.replace(/^-\s*/, '').trim()).filter(Boolean);
+        // Update summary to be everything before the first marker
+        const firstMarkerIndex = fullDescription.search(/###(PROS|CONS|SCORES)###/i);
+        if (firstMarkerIndex !== -1) {
+            summary = fullDescription.substring(0, firstMarkerIndex).trim();
+        }
 
-            if (prosSplit[1]) {
-                const consSplit = prosSplit[1].split('###SCORES###');
-                cons = consSplit[0].split('\n').map((l: string) => l.replace(/^-\s*/, '').trim()).filter(Boolean);
+        // Parse Pros
+        if (prosMatch && prosMatch[1]) {
+            pros = prosMatch[1]
+                .split('\n')
+                .map((l: string) => l.replace(/^-\s*/, '').trim()) // Remove leading dash
+                .filter((l: string) => l && !l.startsWith('###')); // Filter empty or marker lines
+        }
 
-                if (consSplit[1]) {
-                    try {
-                        const scoresJson = JSON.parse(consSplit[1].trim());
-                        scores = Object.entries(scoresJson).map(([key, value]) => ({
-                            subject: key,
-                            A: value as number,
-                            fullMark: 100
-                        }));
-                        // Calculate overall score
+        // Parse Cons
+        if (consMatch && consMatch[1]) {
+             cons = consMatch[1]
+                .split('\n')
+                .map((l: string) => l.replace(/^-\s*/, '').trim())
+                .filter((l: string) => l && !l.startsWith('###'));
+        }
+
+        // Parse Scores
+        if (scoresMatch && scoresMatch[1]) {
+            try {
+                // Try to find JSON block
+                const jsonMatch = scoresMatch[1].match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const scoresJson = JSON.parse(jsonMatch[0]);
+                    scores = Object.entries(scoresJson).map(([key, value]) => ({
+                        subject: key,
+                        A: typeof value === 'number' ? value : 0,
+                        fullMark: 100
+                    }));
+                    if (scores.length > 0) {
                         overallScore = Math.round(scores.reduce((sum, s) => sum + s.A, 0) / scores.length);
-                    } catch (e) {
-                        console.error("Failed to parse scores", e);
                     }
                 }
-            }
-        }
-    } else if (fullDescription && fullDescription.includes('###PROS###')) {
-        const parts = fullDescription.split('###PROS###');
-        summary = parts[0].trim();
-        if (parts[1]) {
-            const prosConsParts = parts[1].split('###CONS###');
-            pros = prosConsParts[0].split('\n').map((l: string) => l.replace(/^-\s*/, '').trim()).filter(Boolean);
-            if (prosConsParts[1]) {
-                cons = prosConsParts[1].split('\n').map((l: string) => l.replace(/^-\s*/, '').trim()).filter(Boolean);
+            } catch (e) {
+                console.warn("Failed to parse scores JSON", e);
             }
         }
     }
@@ -248,9 +262,7 @@ export default async function ProductPage({ params: { id, locale } }: { params: 
                                     <Activity className="w-5 h-5" />
                                     {locale === 'en' ? 'AI Analysis' : 'تحليل الذكاء الاصطناعي'}
                                 </div>
-                                <p className="text-gray-300 leading-relaxed whitespace-pre-line">
-                                    {summary}
-                                </p>
+                                <MarkdownRenderer content={summary} className="text-gray-300" />
                             </div>
 
                             {/* CTA Button */}

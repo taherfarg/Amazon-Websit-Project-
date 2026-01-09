@@ -155,15 +155,18 @@ if __name__ == "__main__":
                 "description_ar": ai_content["desc_ar"],
                 "price": product_data['price'].get('current_price'),
                 "original_price": product_data['price'].get('original_price'),
-                "discount_percentage": product_data['price'].get('discount_percent'),
+                "discount_percent": product_data['price'].get('discount_percent'),
                 "currency": product_data['price'].get('currency', 'AED'),
                 "image_url": product_data.get('image_url', ''),
+                "all_images": product_data.get('all_images', []),  # All scraped images
+                "specifications": product_data.get('specifications', {}),  # Product specs
                 "category": product_data.get('category', 'General'),
+                "subcategory": product_data.get('subcategory', ''),
                 "brand": product_data.get('brand', ''),
                 "asin": product_data.get('asin', ''),
                 "affiliate_link": product_data.get('affiliate_link', ''),
                 "rating": product_data.get('rating', 4.5),
-                "total_reviews": product_data['reviews'].get('total_reviews', 0),
+                "reviews_count": product_data['reviews'].get('total_reviews', 0),
                 "in_stock": product_data.get('in_stock', True),
                 "is_featured": product_data.get('rating', 0) >= 4.5
             }

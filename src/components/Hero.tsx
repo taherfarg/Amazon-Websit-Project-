@@ -34,19 +34,25 @@ export default function Hero() {
     return (
         <section className="relative w-full flex flex-col items-center justify-center py-20 md:py-28 lg:py-40 px-4 text-center overflow-hidden">
             {/* Optimized Background - Reduced blur on mobile */}
-            <div className="absolute inset-0 overflow-hidden">
-                {/* Gradient Orbs - Smaller on mobile */}
-                <div className="absolute top-1/4 left-1/4 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-primary/15 blur-[80px] md:blur-[150px] rounded-full" />
-                <div className="absolute bottom-1/4 right-1/4 w-[250px] md:w-[500px] h-[250px] md:h-[500px] bg-secondary/15 blur-[80px] md:blur-[150px] rounded-full" />
+            {/* Optimized Background - Premium Gradient Mesh */}
+            <div className="absolute inset-0 overflow-hidden bg-black">
+                {/* Dynamic Gradient Orbs */}
+                <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-purple-600/20 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
+                <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-900/10 blur-[100px] rounded-full" />
 
-                {/* Grid Pattern - Hidden on mobile for performance */}
-                <div
-                    className="hidden md:block absolute inset-0 opacity-[0.03]"
+                {/* Animated Grid Pattern */}
+                <div 
+                    className="absolute inset-0 opacity-[0.1]"
                     style={{
-                        backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-                        backgroundSize: '50px 50px'
+                        backgroundImage: `linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)`,
+                        backgroundSize: '40px 40px',
+                        maskImage: 'radial-gradient(circle at center, black, transparent 80%)'
                     }}
                 />
+                
+                {/* Noise Texture Overlay */}
+                <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" style={{ backgroundImage: 'url("/noise.png")' }} />
             </div>
 
             <motion.div

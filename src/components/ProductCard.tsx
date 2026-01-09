@@ -17,7 +17,19 @@ function ProductCard({ product, locale }: { product: Product, locale: string }) 
     const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
     const title = locale === 'en' ? product.title_en : product.title_ar;
-    const description = locale === 'en' ? product.description_en : product.description_ar;
+    
+    // Clean and truncate description to avoid massive text blocks
+    const rawDescription = locale === 'en' ? product.description_en : product.description_ar;
+    const cleanDescription = (desc: string) => {
+        if (!desc) return '';
+        // Remove markdown headers, bold, etc
+        let cleaned = desc.replace(/[#*\[\]]/g, '').replace(/\s+/g, ' ').trim();
+        // Remove "Executive Summary" label if present
+        cleaned = cleaned.replace(/Executive Summary|Summary/i, '').trim();
+        // Truncate
+        return cleaned.length > 100 ? cleaned.substring(0, 100) + '...' : cleaned;
+    };
+    const description = cleanDescription(rawDescription || '');
 
     const isWishlisted = isInWishlist(product.id);
     const isComparing = isInCompare(product.id);
@@ -107,14 +119,14 @@ function ProductCard({ product, locale }: { product: Product, locale: string }) 
                 </div>
 
                 {/* Image Area - Optimized with Next/Image */}
-                <Link href={`/${locale}/product/${product.id}`} className="relative w-full aspect-[4/3] bg-gradient-to-b from-white/5 to-transparent p-4 md:p-8 flex items-center justify-center overflow-hidden">
+                <Link href={`/${locale}/product/${product.id}`} className="relative w-full aspect-square bg-white p-6 md:p-8 flex items-center justify-center overflow-hidden">
                     {product.image_url ? (
                         <Image
                             src={product.image_url}
                             alt={title}
                             fill
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                            className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+                            className="object-contain p-2 group-hover:scale-110 transition-transform duration-500 ease-out"
                             loading="lazy"
                         />
                     ) : (

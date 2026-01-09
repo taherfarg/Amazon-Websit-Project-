@@ -3,9 +3,12 @@
 import { useCart } from '@/context/CartContext';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
+import { createOrder } from '@/app/actions';
 import { ShoppingBag, CreditCard, Truck, Shield, ArrowLeft, Package, MapPin, Phone, Mail, User } from 'lucide-react';
+
 import Link from 'next/link';
 import { useState } from 'react';
+import { formatCurrency } from '@/lib/format';
 
 export default function CheckoutPage({ params: { locale } }: { params: { locale: string } }) {
     const { items, subtotal, totalItems, clearCart } = useCart();
@@ -16,16 +19,37 @@ export default function CheckoutPage({ params: { locale } }: { params: { locale:
     const tax = subtotal * 0.08;
     const total = subtotal + shipping + tax;
 
-    const handleSubmit = (e: React.FormEvent) => {
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Simulate order processing
-        setTimeout(() => {
-            setIsSubmitting(false);
+        const shippingDetails = {
+            fullName: (e.target as any)[0].value,
+            email: (e.target as any)[1].value,
+            phone: (e.target as any)[2].value,
+            city: (e.target as any)[3].value,
+            address: (e.target as any)[4].value,
+        };
+
+        const result = await createOrder({
+            items,
+            subtotal,
+            shipping,
+            tax,
+            total,
+            shippingDetails,
+            locale
+        });
+
+        if (result.success) {
             setOrderPlaced(true);
             clearCart();
-        }, 2000);
+        } else {
+            console.error('Submission failed', result.error);
+            // Optionally add toast error here
+        }
+        setIsSubmitting(false);
     };
 
     if (orderPlaced) {
@@ -235,7 +259,7 @@ export default function CheckoutPage({ params: { locale } }: { params: { locale:
                                         Processing...
                                     </span>
                                 ) : (
-                                    `Place Order - $${total.toFixed(2)}`
+                                    `Place Order - ${formatCurrency(total, locale)}`
                                 )}
                             </button>
                         </form>
@@ -267,7 +291,7 @@ export default function CheckoutPage({ params: { locale } }: { params: { locale:
                                             </p>
                                             <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
                                             <p className="text-sm font-bold text-primary">
-                                                ${(item.product.price * item.quantity).toFixed(2)}
+                                                {formatCurrency(item.product.price * item.quantity, locale)}
                                             </p>
                                         </div>
                                     </div>
@@ -278,19 +302,19 @@ export default function CheckoutPage({ params: { locale } }: { params: { locale:
                             <div className="space-y-3 border-t border-white/10 pt-4">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-400">Subtotal</span>
-                                    <span className="text-white">${subtotal.toFixed(2)}</span>
+                                    <span className="text-white">{formatCurrency(subtotal, locale)}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-400">Shipping</span>
-                                    <span className="text-white">${shipping.toFixed(2)}</span>
+                                    <span className="text-white">{formatCurrency(shipping, locale)}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-400">Tax</span>
-                                    <span className="text-white">${tax.toFixed(2)}</span>
+                                    <span className="text-white">{formatCurrency(tax, locale)}</span>
                                 </div>
                                 <div className="flex justify-between text-lg font-bold border-t border-white/10 pt-3">
                                     <span className="text-white">Total</span>
-                                    <span className="text-primary">${total.toFixed(2)}</span>
+                                    <span className="text-primary">{formatCurrency(total, locale)}</span>
                                 </div>
                             </div>
                         </div>

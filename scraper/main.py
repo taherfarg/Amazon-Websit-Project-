@@ -259,93 +259,172 @@ def extract_price(soup):
 
 
 def extract_all_images(soup):
-    """Extract all product images including gallery"""
+    """Extract all product images including gallery - Enhanced version"""
     images = []
     seen_urls = set()
     
+    def add_image(url, img_type="gallery", alt=""):
+        """Helper to add image if not already seen"""
+        if url and url not in seen_urls and url.startswith("http"):
+            # Skip video thumbnails and play button overlays
+            if "play-button" in url or "video-thumb" in url:
+                return False
+            images.append({"url": url, "type": img_type, "alt": alt})
+            seen_urls.add(url)
+            return True
+        return False
+    
+    def convert_to_large(url):
+        """Convert Amazon thumbnail URL to high-resolution version"""
+        if not url:
+            return url
+        # Common Amazon thumbnail patterns to high-res
+        patterns = [
+            (r'_AC_US\d+_', '_AC_SL1500_'),
+            (r'_AC_SX\d+_', '_AC_SL1500_'),
+            (r'_AC_SY\d+_', '_AC_SL1500_'),
+            (r'_SX\d+_', '_SL1500_'),
+            (r'_SY\d+_', '_SL1500_'),
+            (r'_SS\d+_', '_SL1500_'),
+            (r'_SR\d+,\d+_', '_SL1500_'),
+            (r'_AC_UL\d+_', '_AC_SL1500_'),
+            (r'_AC_SR\d+,\d+_', '_AC_SL1500_'),
+            (r'\._[A-Z]{2}\d+_', '._AC_SL1500_'),
+        ]
+        result = url
+        for pattern, replacement in patterns:
+            result = re.sub(pattern, replacement, result)
+        return result
+    
     try:
-        # Method 1: Main image via landingImage
+        # Method 1: Main image via landingImage (highest priority)
         main_img = soup.find("img", id="landingImage")
         if main_img:
-            # Try to get high-res version from data attributes
-            for attr in ["data-old-hires", "data-a-dynamic-image", "src"]:
-                if attr in main_img.attrs:
-                    if attr == "data-a-dynamic-image":
-                        try:
-                            img_data = json.loads(main_img[attr])
-                            # Get the highest resolution
-                            for url in sorted(img_data.keys(), key=lambda x: img_data[x][0], reverse=True):
-                                if url not in seen_urls:
-                                    images.append({"url": url, "type": "main", "alt": main_img.get("alt", "")})
-                                    seen_urls.add(url)
-                                    break
-                        except:
-                            pass
-                    else:
-                        url = main_img[attr]
-                        if url and url not in seen_urls and url.startswith("http"):
-                            images.append({"url": url, "type": "main", "alt": main_img.get("alt", "")})
-                            seen_urls.add(url)
-                            break
-        
-        # Method 2: Image gallery thumbnails (Standard)
-        thumb_containers = soup.find_all("li", class_="imageThumbnail")
-        if not thumb_containers:
-             thumb_containers = soup.select("#altImages li.item")
-             
-        for thumb in thumb_containers:
-            img = thumb.find("img")
-            if img:
-                # Try to get full size from src by modifying the URL
-                src = img.get("src", "")
-                if src:
-                    # Amazon thumbnail URLs can be converted to full size
-                    # e.g., _AC_US40_ -> _AC_SL1500_
-                    full_url = re.sub(r'_AC_US\d+_', '_AC_SL1500_', src)
-                    full_url = re.sub(r'_SX\d+_', '_SL1500_', full_url)
-                    full_url = re.sub(r'_SS\d+_', '_SL1500_', full_url)
-                    full_url = re.sub(r'_SY\d+_', '_SL1500_', full_url)
-                    
-                    if full_url not in seen_urls and full_url.startswith("http"):
-                        images.append({"url": full_url, "type": "gallery", "alt": img.get("alt", "")})
-                        seen_urls.add(full_url)
-
-        # Method 3: Alt images from script data
-        scripts = soup.find_all("script", type="text/javascript")
-        for script in scripts:
-            if script.string and "'colorImages'" in script.string:
+            # Try data-old-hires first (highest res)
+            if main_img.get("data-old-hires"):
+                add_image(main_img["data-old-hires"], "main", main_img.get("alt", ""))
+            
+            # Try data-a-dynamic-image (contains multiple resolutions)
+            if main_img.get("data-a-dynamic-image"):
                 try:
-                    # Extract image data from colorImages
-                    match = re.search(r"'colorImages':\s*\{([^}]+)\}", script.string)
-                    if match:
-                        img_match = re.findall(r'"hiRes"\s*:\s*"([^"]+)"', script.string)
-                        for url in img_match:
-                            if url not in seen_urls:
-                                images.append({"url": url, "type": "color_variant", "alt": ""})
-                                seen_urls.add(url)
+                    img_data = json.loads(main_img["data-a-dynamic-image"])
+                    # Sort by resolution (width) and get highest
+                    sorted_urls = sorted(img_data.keys(), key=lambda x: img_data[x][0] if img_data[x] else 0, reverse=True)
+                    for url in sorted_urls:
+                        add_image(url, "main", main_img.get("alt", ""))
+                        break  # Only add the highest res main image
                 except:
                     pass
-        
-        # Method 4: Fallback to any large image in main container if nothing found
-        if len(images) == 0:
-            img_div = soup.find("div", id="imgTagWrapperId")
-            if img_div:
-                img = img_div.find("img")
-                if img and img.get("src"):
-                    images.append({"url": img["src"], "type": "main", "alt": img.get("alt", "")})
             
-            # Additional fallback
-            if len(images) == 0:
-                 all_imgs = soup.select("#main-image-container img")
-                 for img in all_imgs:
-                     src = img.get("src")
-                     if src and "sprite" not in src and "transparent" not in src and src.startswith("http"):
-                         if src not in seen_urls:
-                             images.append({"url": src, "type": "fallback", "alt": img.get("alt", "")})
-                             seen_urls.add(src)
+            # Fallback to src
+            if len(images) == 0 and main_img.get("src"):
+                add_image(convert_to_large(main_img["src"]), "main", main_img.get("alt", ""))
+        
+        # Method 2: Parse ImageBlockATF script for all gallery images (MOST RELIABLE)
+        scripts = soup.find_all("script", type="text/javascript")
+        for script in scripts:
+            if script.string:
+                # Look for colorImages data structure
+                if "'colorImages'" in script.string or '"colorImages"' in script.string:
+                    try:
+                        # Extract hiRes images (highest quality)
+                        hi_res_urls = re.findall(r'"hiRes"\s*:\s*"([^"]+)"', script.string)
+                        for url in hi_res_urls:
+                            if url and url != "null":
+                                add_image(url, "gallery")
+                        
+                        # Also extract large images as backup
+                        large_urls = re.findall(r'"large"\s*:\s*"([^"]+)"', script.string)
+                        for url in large_urls:
+                            if url and url != "null":
+                                add_image(url, "gallery")
+                    except Exception as e:
+                        print(f"⚠️ Error parsing colorImages: {e}")
+                
+                # Look for imageGalleryData
+                if "imageGalleryData" in script.string:
+                    try:
+                        urls = re.findall(r'"mainUrl"\s*:\s*"([^"]+)"', script.string)
+                        for url in urls:
+                            add_image(url, "gallery")
+                    except:
+                        pass
+                
+                # Look for P.when ImageBlockATF data
+                if "ImageBlockATF" in script.string:
+                    try:
+                        # Extract all image URLs from this block
+                        all_urls = re.findall(r'https://m\.media-amazon\.com/images/[^"\']+', script.string)
+                        for url in all_urls:
+                            # Only add high-res images (SL1500, SL1000, etc)
+                            if re.search(r'_SL1\d{3}_|_SL\d{4}_', url):
+                                add_image(url, "gallery")
+                    except:
+                        pass
+        
+        # Method 3: Image gallery thumbnails from HTML
+        thumb_selectors = [
+            "li.imageThumbnail img",
+            "#altImages li.item img",
+            "#altImages li img",
+            ".imageThumbnail img",
+            "#imageBlock li img",
+            ".imgTagWrapper img",
+        ]
+        
+        for selector in thumb_selectors:
+            thumbs = soup.select(selector)
+            for img in thumbs:
+                src = img.get("src", "")
+                if src:
+                    full_url = convert_to_large(src)
+                    add_image(full_url, "gallery", img.get("alt", ""))
+        
+        # Method 4: A+ Content / Enhanced Brand Content images
+        aplus_selectors = [
+            ".aplus-module img",
+            "#aplus img",
+            ".aplus-v2 img",
+            "#productDescription img",
+            ".a-section.a-text-center img",
+        ]
+        
+        for selector in aplus_selectors:
+            aplus_imgs = soup.select(selector)
+            for img in aplus_imgs:
+                src = img.get("src") or img.get("data-src", "")
+                if src and "sprite" not in src and "icon" not in src:
+                    full_url = convert_to_large(src)
+                    add_image(full_url, "aplus", img.get("alt", ""))
+        
+        # Method 5: Variant images (different colors/styles)
+        variant_buttons = soup.select("#variation_color_name li img, #variation_style_name li img, .swatchAvailable img")
+        for img in variant_buttons:
+            src = img.get("src", "")
+            if src:
+                full_url = convert_to_large(src)
+                add_image(full_url, "variant", img.get("alt", ""))
+        
+        # Method 6: Fallback - scan for any remaining product images
+        if len(images) < 2:
+            fallback_selectors = [
+                "#imgTagWrapperId img",
+                "#main-image-container img",
+                "#imageBlockNew img",
+                ".image-wrapper img",
+            ]
+            for selector in fallback_selectors:
+                for img in soup.select(selector):
+                    src = img.get("src", "")
+                    if src and "sprite" not in src and "transparent" not in src and "logo" not in src.lower():
+                        add_image(convert_to_large(src), "fallback", img.get("alt", ""))
+        
+        print(f"📸 Found {len(images)} total images")
 
     except Exception as e:
         print(f"⚠️ Error extracting images: {e}")
+        import traceback
+        traceback.print_exc()
     
     return images
 

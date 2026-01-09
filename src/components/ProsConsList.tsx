@@ -3,6 +3,13 @@ import { useState, useEffect } from 'react';
 import { Check, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+// Helper function to strip markdown formatting
+const stripMarkdown = (text: string): string => {
+    if (!text) return '';
+    // Remove **bold** formatting, keeping the text inside
+    return text.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
+};
+
 export default function ProsConsList({ pros, cons }: { pros: string[], cons: string[] }) {
     const [mounted, setMounted] = useState(false);
 
@@ -22,7 +29,7 @@ export default function ProsConsList({ pros, cons }: { pros: string[], cons: str
                         {pros.map((pro, index) => (
                             <li key={index} className="flex items-start gap-3 text-gray-300">
                                 <div className="mt-1 min-w-[6px] h-1.5 rounded-full bg-green-500" />
-                                <span>{pro}</span>
+                                <span>{stripMarkdown(pro)}</span>
                             </li>
                         ))}
                     </ul>
@@ -35,7 +42,7 @@ export default function ProsConsList({ pros, cons }: { pros: string[], cons: str
                         {cons.map((con, index) => (
                             <li key={index} className="flex items-start gap-3 text-gray-300">
                                 <div className="mt-1 min-w-[6px] h-1.5 rounded-full bg-red-500" />
-                                <span>{con}</span>
+                                <span>{stripMarkdown(con)}</span>
                             </li>
                         ))}
                     </ul>
@@ -60,7 +67,7 @@ export default function ProsConsList({ pros, cons }: { pros: string[], cons: str
                     {pros.map((pro, index) => (
                         <li key={index} className="flex items-start gap-3 text-gray-300">
                             <div className="mt-1 min-w-[6px] h-1.5 rounded-full bg-green-500" />
-                            <span>{pro}</span>
+                            <span>{stripMarkdown(pro)}</span>
                         </li>
                     ))}
                 </ul>
@@ -80,7 +87,7 @@ export default function ProsConsList({ pros, cons }: { pros: string[], cons: str
                     {cons.map((con, index) => (
                         <li key={index} className="flex items-start gap-3 text-gray-300">
                             <div className="mt-1 min-w-[6px] h-1.5 rounded-full bg-red-500" />
-                            <span>{con}</span>
+                            <span>{stripMarkdown(con)}</span>
                         </li>
                     ))}
                 </ul>

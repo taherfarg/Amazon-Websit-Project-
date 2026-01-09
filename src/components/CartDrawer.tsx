@@ -5,7 +5,10 @@ import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight, Package } from 'lucide-react';
 import Image from 'next/image';
+import { formatCurrency } from '@/lib/format';
+
 import Link from 'next/link';
+
 
 interface CartDrawerProps {
     isOpen: boolean;
@@ -106,7 +109,7 @@ export default function CartDrawer({ isOpen, onClose, locale }: CartDrawerProps)
                                                         {locale === 'en' ? item.product.title_en : item.product.title_ar}
                                                     </h4>
                                                     <p className="text-lg font-bold text-primary">
-                                                        ${item.product.price?.toFixed(2)}
+                                                        {formatCurrency(item.product.price, locale)}
                                                     </p>
 
                                                     {/* Quantity Controls */}
@@ -155,7 +158,7 @@ export default function CartDrawer({ isOpen, onClose, locale }: CartDrawerProps)
                                 {/* Subtotal */}
                                 <div className="flex items-center justify-between">
                                     <span className="text-gray-400">Subtotal</span>
-                                    <span className="text-2xl font-bold text-white">${subtotal.toFixed(2)}</span>
+                                    <span className="text-2xl font-bold text-white">{formatCurrency(subtotal, locale)}</span>
                                 </div>
 
                                 {/* Checkout Button */}
