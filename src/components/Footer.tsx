@@ -51,24 +51,24 @@ export default function Footer({ locale }: FooterProps) {
                         <div className="flex items-center gap-3 mt-6">
                             <a
                                 href="#"
-                                className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                                className="group p-2.5 bg-white/5 rounded-xl hover:bg-primary/20 hover:scale-110 transition-all duration-300"
                                 aria-label="Twitter"
                             >
-                                <Twitter className="w-4 h-4 text-gray-400" />
+                                <Twitter className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
                             </a>
                             <a
                                 href="#"
-                                className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                                className="group p-2.5 bg-white/5 rounded-xl hover:bg-primary/20 hover:scale-110 transition-all duration-300"
                                 aria-label="GitHub"
                             >
-                                <Github className="w-4 h-4 text-gray-400" />
+                                <Github className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
                             </a>
                             <a
                                 href="#"
-                                className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                                className="group p-2.5 bg-white/5 rounded-xl hover:bg-primary/20 hover:scale-110 transition-all duration-300"
                                 aria-label="Email"
                             >
-                                <Mail className="w-4 h-4 text-gray-400" />
+                                <Mail className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
                             </a>
                         </div>
                     </div>
