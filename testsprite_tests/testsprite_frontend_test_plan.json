@@ -1,0 +1,330 @@
+[
+  {
+    "id": "TC001",
+    "title": "Load Product Grid with Bilingual Data",
+    "description": "Verify that the product grid fetches and displays products from Supabase with correct bilingual content, images, categories, and AI Verdict badges.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to homepage with product grid."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that products are fetched from Supabase without errors."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product cards display images, titles in correct language, categories, ratings, and AI Verdict badges where applicable."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure product cards are interactive and rendered responsively on different screen sizes."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Language Toggle Functionality and Layout Direction",
+    "description": "Verify that toggling language switches all visible text between English and Arabic and adjusts layout direction (LTR/RTL) seamlessly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load homepage initially in English."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm page text and UI elements display in English with LTR layout."
+      },
+      {
+        "type": "action",
+        "description": "Click the language toggle button in the navbar."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that all text including Hero tagline, product titles, summaries, and navigation switches to Arabic."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify layout changes to Right-to-Left (RTL) direction correctly."
+      },
+      {
+        "type": "action",
+        "description": "Toggle back to English."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all content reverts back to English with LTR layout."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Hero Section Bilingual Rendering and Style Verification",
+    "description": "Ensure the Hero Section displays the tagline 'Stop Searching. Let AI Decide.' correctly in English and Arabic with intended high-tech styling and subtle glowing effects.",
+    "category": "ui",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load homepage in English."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify Hero tagline text is shown in English and styled according to UI specifications with glowing effects."
+      },
+      {
+        "type": "action",
+        "description": "Switch language to Arabic."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify Hero tagline text is shown in Arabic with same styling and proper RTL alignment."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "AI Verdict Badge Display on Product Cards",
+    "description": "Verify that AI Verdict badges appear correctly on product cards when applicable, showing either 'AI Recommended' badge or a matching percentage like '98% Match'.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load product grid containing products with and without AI Verdict badges."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm product cards with AI recommendations display the 'AI Recommended' badge."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm products with match scores show correct percentage badges such as '98% Match'."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure badges are bilingual and respond to language toggle."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Buy Now Button Opens Amazon Affiliate Link in New Tab",
+    "description": "Test that clicking the 'Buy Now' button on a product card opens the correct Amazon affiliate link in a new browser tab without errors or navigation issues.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Locate a product card with 'Buy Now' button."
+      },
+      {
+        "type": "action",
+        "description": "Click the 'Buy Now' button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a new browser tab opens."
+      },
+      {
+        "type": "assertion",
+        "description": "Check the URL in the new tab matches the product's Amazon affiliate URL."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure original page remains unchanged and no errors occur."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "SEO Best Practices and Metadata Validation",
+    "description": "Validate that pages include proper meta tags, JSON-LD structured data, sitemaps, and multilingual SEO attributes for organic discoverability.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load homepage and several product detail pages."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify presence of correct meta tags including title, description, canonical URLs, and hreflang tags for both English and Arabic."
+      },
+      {
+        "type": "assertion",
+        "description": "Check JSON-LD schema data is present and valid according to Google Structured Data Testing Tool."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify sitemap.xml is generated and accessible including URLs for both language versions."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Supabase Backend Connectivity and Data Fetching",
+    "description": "Ensure the Supabase client helper connects successfully and fetches bilingual product data without crashes or latency issues.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger data fetch for products via Supabase client."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm connection to Supabase established without error."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify returned data includes bilingual fields, images, affiliate links, AI verdict info."
+      },
+      {
+        "type": "assertion",
+        "description": "Check data fetching performance meets acceptable response times."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Navbar and Core Components Render Correctly with Props",
+    "description": "Verify that Navbar, Hero, and ProductCard components render correctly with the required props and provide expected interactive functionality.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Render Navbar, Hero, and ProductCard components with sample data."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that Navbar displays language toggle button and navigation links properly."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure Hero displays tagline and styling as expected."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify ProductCard shows images, bilingual title, AI summary, categories, ratings, and Buy Now button."
+      },
+      {
+        "type": "action",
+        "description": "Interact with Navbar language toggle and Buy Now button on ProductCard."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm all interactive elements respond correctly."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "next-intl Locale Switching and RTL/LTR Adjustments",
+    "description": "Test that next-intl configuration properly handles seamless locale switching between English and Arabic including text translations and appropriate RTL/LTR layout changes.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate the website and switch language via next-intl locale toggle."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all translatable text updates correctly in real-time without page reload."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify layout direction changes smoothly between LTR for English and RTL for Arabic."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm no UI breakage or misalignment during toggling."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Error Handling on Product Data Fetch Failure",
+    "description": "Verify the system handles failures when fetching product data from Supabase gracefully, displaying user-friendly error messages without crashing.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate Supabase data fetch failure (e.g., network error or invalid response)."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm error is caught and no unhandled exceptions occur."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user interface displays a clear, friendly error message or fallback UI."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure the rest of the page remains functional without crashes."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Responsive Behavior of Product Grid and Cards",
+    "description": "Confirm product grid and product cards adapt layouts appropriately on various screen sizes and device types including mobile, tablet, and desktop.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open product grid page on desktop screen."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify grid layout shows appropriate number of columns and card sizes."
+      },
+      {
+        "type": "action",
+        "description": "Resize viewport to tablet and mobile widths."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm product cards reflow into fewer columns or single column with readable text and images."
+      },
+      {
+        "type": "assertion",
+        "description": "Check UI elements remain accessible and visually consistent."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Affiliate Links Security and New Tab Behavior",
+    "description": "Ensure that all affiliate links opened via Buy Now buttons meet security best practices, open in new tabs, and have appropriate rel attributes (noopener noreferrer).",
+    "category": "security",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Click 'Buy Now' button on a product card."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm new tab opens."
+      },
+      {
+        "type": "assertion",
+        "description": "Inspect link's target attribute is '_blank'."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify anchor tag has rel='noopener noreferrer' attribute for security."
+      }
+    ]
+  }
+]

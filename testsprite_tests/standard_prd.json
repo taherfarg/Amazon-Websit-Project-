@@ -1,0 +1,266 @@
+{
+  "meta": {
+    "project": "AI SmartChoice Affiliate Marketing Website",
+    "date": "2026-01-09",
+    "prepared_by": "Senior Full Stack Web Developer"
+  },
+  "product_overview": "AI SmartChoice is a bilingual affiliate marketing platform that curates best-selling Amazon products using AI analysis of thousands of reviews. It offers a high-performance, modern, and responsive web experience in Arabic and English with seamless language toggling and premium product discovery.",
+  "core_goals": [
+    "Provide an AI-curated selection of top Amazon products to save users time and improve their decision making.",
+    "Support full bilingual functionality with English (LTR) and Arabic (RTL) language support and easy toggling.",
+    "Deliver a modern, clean, and futuristic UI/UX with subtle glowing effects and high responsiveness.",
+    "Implement a rich product browsing experience with product grids, filtering, comparison, and detailed product views.",
+    "Enable affiliate conversions with clear call-to-action buttons opening Amazon links in new tabs.",
+    "Ensure SEO best practices for organic reach and discoverability."
+  ],
+  "key_features": [
+    "Hero Section with a tagline \"Stop Searching. Let AI Decide.\" displayed in English and Arabic with high-tech feel.",
+    "Responsive Product Grid that fetches products from Supabase and displays them as interactive product cards.",
+    "AI Verdict Badge on product cards indicating \"AI Recommended\" or a \"98% Match\" for curated trust.",
+    "Language Toggle Button prominently placed in the navbar for switching between English and Arabic interfaces.",
+    "SEO Optimization via proper meta tags, sitemap, JSON-LD structured data, and multilingual support.",
+    "Call to Action 'Buy Now' button on each product that opens the Amazon affiliate link in a new browser tab.",
+    "Product cards displaying product images, bilingual titles, an AI-generated summary, categories, and ratings.",
+    "Integration with Supabase as backend database storing product info with bilingual fields and affiliate links.",
+    "Use of Next.js 14 App Router, React 18, and Tailwind CSS for frontend architecture.",
+    "Setup of next-intl for seamless Arabic RTL and English LTR toggling."
+  ],
+  "user_flow_summary": [
+    "User lands on the homepage and sees the Hero Section with bilingual high-tech tagline.",
+    "User toggles language between English and Arabic using the navbar button, switching page content and directionality.",
+    "User browses products in the responsive grid and views AI Verdict badges on recommended items.",
+    "User clicks a product card to see more details or uses the 'Buy Now' button to visit Amazon in a new tab.",
+    "User navigates through filtered categories or searches for specific products with autocomplete support.",
+    "Users benefit from SEO optimized pages with metadata for better search rankings."
+  ],
+  "validation_criteria": [
+    "Product grid loads and displays products from Supabase including bilingual text and images.",
+    "Language toggle switches all text and layout direction between English and Arabic correctly.",
+    "Hero Section tagline displays correctly in both languages with the intended style.",
+    "Each product card shows the AI Verdict badge when applicable with correct matching percentage or recommendation text.",
+    "Clicking 'Buy Now' opens the affiliate link in a new tab without errors.",
+    "SEO tags and schemas are correctly implemented and validate via SEO audit tools.",
+    "Database schema matches the specified columns and data types for bilingual content and functionality.",
+    "Supabase client helper connects and fetches data as expected without crashes.",
+    "Core components Navbar, Hero, and ProductCard render with correct props and functionality.",
+    "The next-intl configuration enables seamless locale switching and RTL/LTR adjustments."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "Next.js 14",
+      "React 18",
+      "Tailwind CSS",
+      "Supabase",
+      "Framer Motion",
+      "Jest",
+      "next-intl"
+    ],
+    "features": [
+      {
+        "name": "Product Catalog",
+        "description": "Core product browsing with grid view, filters, search, and category navigation",
+        "files": [
+          "src/components/ProductGrid.tsx",
+          "src/components/ProductCard.tsx",
+          "src/components/ProductCardSkeleton.tsx",
+          "src/components/AdvancedFilters.tsx",
+          "src/components/CategoryFilter.tsx",
+          "src/components/PriceRangeFilter.tsx",
+          "src/components/SearchAutocomplete.tsx"
+        ]
+      },
+      {
+        "name": "Product Details",
+        "description": "Individual product page with image gallery, specifications, reviews, and AI insights",
+        "files": [
+          "src/app/[locale]/product/[id]/page.tsx",
+          "src/components/ProductImageGallery.tsx",
+          "src/components/ProductSpecifications.tsx",
+          "src/components/ProductReviews.tsx",
+          "src/components/AIInsights.tsx",
+          "src/components/ImageZoom.tsx",
+          "src/components/ProductHighlights.tsx",
+          "src/components/ProsConsList.tsx"
+        ]
+      },
+      {
+        "name": "Shopping Cart",
+        "description": "Cart management with drawer UI, add/remove items, and quantity updates",
+        "files": [
+          "src/components/CartDrawer.tsx",
+          "src/components/CartDrawerWrapper.tsx",
+          "src/components/AddToCartButton.tsx",
+          "src/context/CartContext.tsx"
+        ]
+      },
+      {
+        "name": "Checkout",
+        "description": "Checkout flow with order processing",
+        "files": [
+          "src/app/[locale]/checkout/page.tsx"
+        ]
+      },
+      {
+        "name": "Product Comparison",
+        "description": "Compare multiple products side-by-side with detailed feature comparison",
+        "files": [
+          "src/components/CompareDrawer.tsx",
+          "src/components/ProductComparison.tsx",
+          "src/context/CompareContext.tsx"
+        ]
+      },
+      {
+        "name": "Wishlist",
+        "description": "Save products for later viewing",
+        "files": [
+          "src/app/[locale]/wishlist/page.tsx",
+          "src/context/WishlistContext.tsx"
+        ]
+      },
+      {
+        "name": "Price Tracking",
+        "description": "Price alerts and history tracking for products",
+        "files": [
+          "src/components/PriceTracker.tsx",
+          "src/components/PriceAlertButton.tsx",
+          "src/context/PriceAlertContext.tsx"
+        ]
+      },
+      {
+        "name": "Navigation",
+        "description": "Main navigation bar with search, cart, and user menu",
+        "files": [
+          "src/components/Navbar.tsx",
+          "src/components/Footer.tsx",
+          "src/components/BackToTop.tsx",
+          "src/components/SkipToContent.tsx"
+        ]
+      },
+      {
+        "name": "Homepage Features",
+        "description": "Homepage sections including hero, deals, recommendations, and testimonials",
+        "files": [
+          "src/app/[locale]/page.tsx",
+          "src/components/Hero.tsx",
+          "src/components/FlashDeals.tsx",
+          "src/components/DailyPicks.tsx",
+          "src/components/CategoryShowcase.tsx",
+          "src/components/FeaturedBanners.tsx",
+          "src/components/TestimonialsSection.tsx",
+          "src/components/CustomerVoice.tsx"
+        ]
+      },
+      {
+        "name": "Theme and Styling",
+        "description": "Dark/light theme toggle and consistent styling",
+        "files": [
+          "src/components/ThemeToggle.tsx",
+          "src/context/ThemeContext.tsx",
+          "src/app/globals.css"
+        ]
+      },
+      {
+        "name": "Recently Viewed",
+        "description": "Track and display recently viewed products",
+        "files": [
+          "src/components/RecentlyViewed.tsx",
+          "src/context/RecentlyViewedContext.tsx"
+        ]
+      },
+      {
+        "name": "Recommendations",
+        "description": "Product recommendations including similar products and frequently bought together",
+        "files": [
+          "src/components/Recommendations.tsx",
+          "src/components/RecommendationsWrapper.tsx",
+          "src/components/SimilarProducts.tsx",
+          "src/components/FrequentlyBoughtTogether.tsx"
+        ]
+      },
+      {
+        "name": "Rating and Reviews",
+        "description": "Star ratings, review charts, and rating breakdown",
+        "files": [
+          "src/components/ReviewStars.tsx",
+          "src/components/ReviewChart.tsx",
+          "src/components/RatingBreakdown.tsx",
+          "src/components/OverallScoreGauge.tsx"
+        ]
+      },
+      {
+        "name": "Quick View",
+        "description": "Modal popup for quick product preview without navigating to product page",
+        "files": [
+          "src/components/QuickViewModal.tsx"
+        ]
+      },
+      {
+        "name": "Toast Notifications",
+        "description": "User feedback notifications for actions like add to cart",
+        "files": [
+          "src/components/ToastContainer.tsx",
+          "src/context/ToastContext.tsx"
+        ]
+      },
+      {
+        "name": "Authentication",
+        "description": "User authentication with login/signup",
+        "files": [
+          "src/app/[locale]/auth/page.tsx"
+        ]
+      },
+      {
+        "name": "Admin Dashboard",
+        "description": "Admin panel for managing products",
+        "files": [
+          "src/app/[locale]/admin/page.tsx",
+          "src/components/admin/AdminProductTable.tsx"
+        ]
+      },
+      {
+        "name": "AI Chatbot",
+        "description": "AI-powered chat assistant for product recommendations",
+        "files": [
+          "src/components/Chatbot.tsx"
+        ]
+      },
+      {
+        "name": "Newsletter",
+        "description": "Email subscription for updates and deals",
+        "files": [
+          "src/components/Newsletter.tsx"
+        ]
+      },
+      {
+        "name": "Data Layer",
+        "description": "Supabase client, caching, types, and mock data",
+        "files": [
+          "src/lib/supabaseClient.ts",
+          "src/lib/cache.ts",
+          "src/lib/types.ts",
+          "src/lib/mockData.ts",
+          "src/lib/format.ts"
+        ]
+      },
+      {
+        "name": "Internationalization",
+        "description": "Multi-language support using next-intl",
+        "files": [
+          "src/i18n.ts",
+          "src/middleware.ts",
+          "messages/en.json",
+          "messages/ar.json"
+        ]
+      },
+      {
+        "name": "SEO",
+        "description": "SEO optimization with sitemap, JSON-LD schema, and meta tags",
+        "files": [
+          "src/app/sitemap.ts",
+          "src/components/JsonLdScript.tsx"
+        ]
+      }
+    ]
+  }
+}

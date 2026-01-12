@@ -14,14 +14,14 @@ export default function Footer({ locale }: FooterProps) {
 
     const links = {
         product: [
-            { label: locale === 'en' ? 'All Products' : 'جميع المنتجات', href: `/${locale}#products` },
-            { label: locale === 'en' ? 'Categories' : 'الفئات', href: `/${locale}#products` },
-            { label: locale === 'en' ? 'Wishlist' : 'المفضلة', href: `/${locale}/wishlist` },
+            { id: 'all-products', label: locale === 'en' ? 'All Products' : 'جميع المنتجات', href: `/${locale}#products` },
+            { id: 'categories', label: locale === 'en' ? 'Categories' : 'الفئات', href: `/${locale}/categories` },
+            { id: 'wishlist', label: locale === 'en' ? 'Wishlist' : 'المفضلة', href: `/${locale}/wishlist` },
         ],
         company: [
-            { label: locale === 'en' ? 'About Us' : 'من نحن', href: `/${locale}/about` },
-            { label: locale === 'en' ? 'How it Works' : 'كيف يعمل', href: `/${locale}/about` },
-            { label: locale === 'en' ? 'Privacy Policy' : 'سياسة الخصوصية', href: '#' },
+            { id: 'about-us', label: locale === 'en' ? 'About Us' : 'من نحن', href: `/${locale}/about` },
+            { id: 'how-it-works', label: locale === 'en' ? 'How it Works' : 'كيف يعمل', href: `/${locale}/about` },
+            { id: 'privacy', label: locale === 'en' ? 'Privacy Policy' : 'سياسة الخصوصية', href: '#' },
         ],
     };
 
@@ -37,7 +37,8 @@ export default function Footer({ locale }: FooterProps) {
                                 alt="AI SmartChoice"
                                 width={160}
                                 height={45}
-                                className="h-10 w-auto object-contain"
+                                className="h-10 object-contain"
+                                style={{ width: 'auto' }}
                             />
                         </Link>
                         <p className="text-sm text-gray-400 leading-relaxed">
@@ -79,7 +80,7 @@ export default function Footer({ locale }: FooterProps) {
                         </h3>
                         <ul className="space-y-3">
                             {links.product.map((link) => (
-                                <li key={link.href}>
+                                <li key={link.id}>
                                     <Link
                                         href={link.href}
                                         className="text-sm text-gray-400 hover:text-white transition-colors"
@@ -98,7 +99,7 @@ export default function Footer({ locale }: FooterProps) {
                         </h3>
                         <ul className="space-y-3">
                             {links.company.map((link) => (
-                                <li key={link.label}>
+                                <li key={link.id}>
                                     <Link
                                         href={link.href}
                                         className="text-sm text-gray-400 hover:text-white transition-colors"

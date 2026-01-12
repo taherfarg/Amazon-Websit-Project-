@@ -105,7 +105,8 @@ export default function Navbar({ locale }: { locale: string }) {
                         alt="AI SmartChoice"
                         width={140}
                         height={40}
-                        className="h-8 md:h-10 w-auto object-contain"
+                        className="h-8 md:h-10 object-contain"
+                        style={{ width: 'auto' }}
                         priority
                     />
                 </Link>

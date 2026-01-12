@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000/C:\\Users\\U\\Desktop\\PROJECTS\\MY PROJECTS\\Amazon-Websit-Project-",
+  "loginUser": "pollux.motors.it@gmail.com",
+  "loginPassword": "##POLLUX.Motors.it##",
+  "executionArgs": {
+    "projectName": "Amazon-Websit-Project-",
+    "projectPath": "c:\\Users\\U\\Desktop\\PROJECTS\\MY PROJECTS\\Amazon-Websit-Project-",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-7rFRIALBa5lrYlkn0ugONZAFATq5O6GD_CG6jXRSptehFI5BxpJid1dkZHXZAR0aezzU0d36A-0QnoWoKrdF2Jt6wdvuvL8oUyeVsBg6Gguvd0m0SNI12qDC_jNKynSxVXM"
+    }
+  },
+  "proxy": "http://4fd3817e-8c06-43bd-8d37-e87a79e0c43e:GV0TBsW8vDogFjO0M65dnvOCzpMEfeBk@tun.testsprite.com:8080"
+}
