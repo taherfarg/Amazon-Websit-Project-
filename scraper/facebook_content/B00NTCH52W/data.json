@@ -1,11 +1,21 @@
 {
   "title": "Amazon Basics AA 1.5 Volt Performance Alkaline Batteries, 20-Pack (Appearance may vary)",
+  "brand": "Amazon Basics",
+  "asin": "B00NTCH52W",
   "price": {
-    "current_price": 24.0,
-    "original_price": 24.0,
+    "current_price": 19.0,
+    "original_price": 69.99,
     "currency": "AED",
-    "discount_percent": null
+    "discount_percent": 72.9
   },
+  "reviews": {
+    "total_reviews": 1289371,
+    "average_rating": 4.5,
+    "highlights": [],
+    "top_positive": null,
+    "top_critical": null
+  },
+  "rating": 4.5,
   "raw_desc": "One 20-pack AA 1.5-volt performance alkaline batteries for reliable performance across a wide range of devices 10-year leak-free shelf life; air- and liquid-tight seal locks in the power until it’s needed thanks to the improved design, which includes dual crimps, a new zinc composition, and anti-corrosion components Delivers the amount of power needed for a specific device; ideal for game controllers, toys, flashlights, digital cameras, clocks, and more Ships in Certified Frustration-Free Packaging Note: these batteries are NOT rechargeable. For reusable options, check out Amazon Basics rechargeable batteries",
   "features": [
     "One 20-pack AA 1.5-volt performance alkaline batteries for reliable performance across a wide range of devices",
@@ -14,6 +24,7 @@
     "Ships in Certified Frustration-Free Packaging",
     "Note: these batteries are NOT rechargeable. For reusable options, check out Amazon Basics rechargeable batteries"
   ],
-  "rating": 4.5,
-  "url": "https://www.amazon.ae/Amazon-Basics-Performance-Batteries-Appearance/dp/B00NTCH52W"
+  "url": "https://www.amazon.ae/Amazon-Basics-Performance-Batteries-Appearance/dp/B00NTCH52W",
+  "affiliate_link": "https://www.amazon.ae/Amazon-Basics-Performance-Batteries-Appearance/dp/B00NTCH52W?tag=techdealsuae-21",
+  "website_link": "https://aismartchoice.com/product/B00NTCH52W"
 }

@@ -1,11 +1,21 @@
 {
   "title": "soundcore by Anker Liberty 4 NC Adaptive Noise Cancelling Earbuds, 98.5% Noise Reduction to Ears and Environment, Hi-Res Sound, 50H Battery, Wireless Charging, Bluetooth 5.3",
+  "brand": "soundcore",
+  "asin": "B0BZV4QFP8",
   "price": {
     "current_price": 175.0,
     "original_price": 499.0,
     "currency": "AED",
     "discount_percent": 64.9
   },
+  "reviews": {
+    "total_reviews": 23068,
+    "average_rating": 4.2,
+    "highlights": [],
+    "top_positive": null,
+    "top_critical": null
+  },
+  "rating": 4.2,
   "raw_desc": "Reduce Noise By Up to 98.5%: Liberty 4 NC noise cancelling earbuds have a high sensitivity in-ear sound sensor, an oversized driver, and an innovative noise isolation chamber that cancels up to 98.6% of noise for peaceful travel.. Noise Cancelling Adapts to Ears and Environments: Adaptive ANC 2.1 makes real-time calculations and adjusts to your ear canals and external environment for maximum quiet amongst the hustle and bustle. Crisp Sound with 3× More Detail: 11mm custom-tuned drivers deliver consistently crisp and detailed sound. Experience Hi-Res wireless audio and LDAC technology that transfers 4× more data than regular Bluetooth—bringing wireless music to life. Sculpt Your Sound Profile: Not everyone listens the same, so use HearID 2.0 to find the perfect sound profile for you. If you want to mix it up, the EQ is fully adjustable or choose from 23 presets to match your audio 10H/50H Worry-Free Battery: A single charge is enough to enjoy uninterrupted entertainment for a trip across the US. Pack Liberty 4 NC for your next adventure and listen to 1,000 tracks or watch 31 movies back-to-back with no battery anxiety.",
   "features": [
     "Reduce Noise By Up to 98.5%: Liberty 4 NC noise cancelling earbuds have a high sensitivity in-ear sound sensor, an oversized driver, and an innovative noise isolation chamber that cancels up to 98.6% of noise for peaceful travel..",
@@ -14,6 +24,7 @@
     "Sculpt Your Sound Profile: Not everyone listens the same, so use HearID 2.0 to find the perfect sound profile for you. If you want to mix it up, the EQ is fully adjustable or choose from 23 presets to match your audio",
     "10H/50H Worry-Free Battery: A single charge is enough to enjoy uninterrupted entertainment for a trip across the US. Pack Liberty 4 NC for your next adventure and listen to 1,000 tracks or watch 31 movies back-to-back with no battery anxiety."
   ],
-  "rating": 4.2,
-  "url": "https://www.amazon.ae/soundcore-Cancelling-Reduction-Environment-Bluetooth/dp/B0BZV4QFP8"
+  "url": "https://www.amazon.ae/soundcore-Cancelling-Reduction-Environment-Bluetooth/dp/B0BZV4QFP8",
+  "affiliate_link": "https://www.amazon.ae/soundcore-Cancelling-Reduction-Environment-Bluetooth/dp/B0BZV4QFP8?tag=techdealsuae-21",
+  "website_link": "https://aismartchoice.com/product/B0BZV4QFP8"
 }

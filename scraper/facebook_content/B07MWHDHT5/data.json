@@ -1,17 +1,28 @@
 {
   "title": "Vileda Tip Top Dish Washing Medium Foam Sponge Scourer 5 Pieces",
+  "brand": "Vileda",
+  "asin": "B07MWHDHT5",
   "price": {
     "current_price": 8.75,
     "original_price": 1.75,
     "currency": "AED",
-    "discount_percent": null
+    "discount_percent": 13.0
   },
+  "reviews": {
+    "total_reviews": 1639,
+    "average_rating": 4.5,
+    "highlights": [],
+    "top_positive": null,
+    "top_critical": null
+  },
+  "rating": 4.5,
   "raw_desc": "Foam Backing: The Vileda TipTop Foam backing is designed to effectively produce suds and rinse easily with water, making dish washing and cleaning tasks easier and more efficient. Long-Lasting and Durable: Made of high-quality materials, the scouring pad and sponge are joined using a special method of adhesion. This ensures that the Vileda TipTop sponge scourer lasts for a fairly long time, providing reliable and consistent cleaning performance. Safe for Sensitive Surfaces: Always remember to test the pad on a non-visible area before using on particularly sensitive surfaces, to ensure that it does not cause any damage or scratches.",
   "features": [
     "Foam Backing: The Vileda TipTop Foam backing is designed to effectively produce suds and rinse easily with water, making dish washing and cleaning tasks easier and more efficient.",
     "Long-Lasting and Durable: Made of high-quality materials, the scouring pad and sponge are joined using a special method of adhesion. This ensures that the Vileda TipTop sponge scourer lasts for a fairly long time, providing reliable and consistent cleaning performance.",
     "Safe for Sensitive Surfaces: Always remember to test the pad on a non-visible area before using on particularly sensitive surfaces, to ensure that it does not cause any damage or scratches."
   ],
-  "rating": 4.5,
-  "url": "https://www.amazon.ae/Vileda-Washing-Medium-Sponge-Scourer/dp/B07MWHDHT5"
+  "url": "https://www.amazon.ae/Vileda-Washing-Medium-Sponge-Scourer/dp/B07MWHDHT5",
+  "affiliate_link": "https://www.amazon.ae/Vileda-Washing-Medium-Sponge-Scourer/dp/B07MWHDHT5?tag=techdealsuae-21",
+  "website_link": "https://aismartchoice.com/product/B07MWHDHT5"
 }

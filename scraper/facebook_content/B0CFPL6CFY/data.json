@@ -1,11 +1,21 @@
 {
   "title": "Amazon Kindle Paperwhite (16 GB) – Our fastest Kindle ever, with new 7\" glare-free display, and weeks of battery life – Black",
+  "brand": "Brand: Amazon",
+  "asin": "B0CFPL6CFY",
   "price": {
     "current_price": 679.0,
     "original_price": null,
     "currency": "AED",
     "discount_percent": null
   },
+  "reviews": {
+    "total_reviews": 9064,
+    "average_rating": 4.6,
+    "highlights": [],
+    "top_positive": null,
+    "top_critical": null
+  },
+  "rating": 4.6,
   "raw_desc": "Our fastest Kindle ever – The next-generation 7“ Paperwhite display has a higher contrast ratio and 25% faster page turns. Ready for travel – The ultra-thin design has a larger glare-free screen so pages stay sharp no matter where you are. Escape into your books – Your Kindle doesn’t have social media, notifications, or other distracting apps. Battery life for your longest novel – A single charge via USB-C lasts up to 12 weeks. Read in any light – Adjust the display from white to amber to read in bright sunlight or in the dark.",
   "features": [
     "Our fastest Kindle ever – The next-generation 7“ Paperwhite display has a higher contrast ratio and 25% faster page turns.",
@@ -14,6 +24,7 @@
     "Battery life for your longest novel – A single charge via USB-C lasts up to 12 weeks.",
     "Read in any light – Adjust the display from white to amber to read in bright sunlight or in the dark."
   ],
-  "rating": 4.6,
-  "url": "https://www.amazon.ae/kindle-paperwhite-2024/dp/B0CFPL6CFY"
+  "url": "https://www.amazon.ae/kindle-paperwhite-2024/dp/B0CFPL6CFY",
+  "affiliate_link": "https://www.amazon.ae/kindle-paperwhite-2024/dp/B0CFPL6CFY?tag=techdealsuae-21",
+  "website_link": "https://aismartchoice.com/product/B0CFPL6CFY"
 }
